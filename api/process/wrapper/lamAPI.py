@@ -35,12 +35,13 @@ class LamAPI():
                 return result_json  # If none of the keys are found, return the original JSON data
             else:
                 raise Exception("Sorry, Invalid format!")
-        
+
         return {}
 
     async def __submit_get(self, url, params):
         try:
-            retry_options = ExponentialRetry(attempts=3, start_timeout=3, max_timeout=10)
+            retry_options = ExponentialRetry(
+                attempts=3, start_timeout=3, max_timeout=10)
             timeout = aiohttp.ClientTimeout(total=60)  # Adjusted timeout
             async with self.semaphore:
                 async with RetryClient(connector=aiohttp.TCPConnector(ssl=False), retry_options=retry_options) as session:
@@ -52,7 +53,8 @@ class LamAPI():
 
     async def __submit_post(self, url, params, json_data):
         try:
-            retry_options = ExponentialRetry(attempts=3, start_timeout=3, max_timeout=10)
+            retry_options = ExponentialRetry(
+                attempts=3, start_timeout=3, max_timeout=10)
             timeout = aiohttp.ClientTimeout(total=60)  # Adjusted timeout
             async with self.semaphore:
                 async with RetryClient(connector=aiohttp.TCPConnector(ssl=False), retry_options=retry_options) as session:
@@ -76,7 +78,7 @@ class LamAPI():
             "error_message": error_message,
             "stack_trace": traceback_info,
         })
-                
+
     async def literal_recognizer(self, column):
         json_data = {
             'json': column
@@ -91,10 +93,10 @@ class LamAPI():
             if item["datatype"] == "STRING" and item["datatype"] == item["classification"]:
                 datatype = "ENTITY"
             else:
-                datatype = item["classification"]  
+                datatype = item["classification"]
             if datatype not in freq_data:
                 freq_data[datatype] = 0
-            freq_data[datatype] += 1   
+            freq_data[datatype] += 1
 
         return freq_data
 
@@ -162,8 +164,9 @@ class LamAPI():
         ngrams_str = 'true' if ngrams else 'false'
         fuzzy_str = 'true' if fuzzy else 'false'
         types_str = ' '.join(types) if types is not None else None
-        ids_str = ' '.join(ids) if ids else ''  # Provide default value if ids is None
-        
+        # Provide default value if ids is None
+        ids_str = ' '.join(ids) if ids else ''
+
         params = {
             'token': LAMAPI_TOKEN,
             'name': string,
@@ -174,7 +177,7 @@ class LamAPI():
         }
         if types_str is not None:
             params['types'] = types_str
-            
+
         result = await self.__submit_get(self._url.lookup_url(), params)
         if len(result) > 1:
             result = {"wikidata": result}

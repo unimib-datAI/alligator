@@ -163,3 +163,5 @@ mongo-data/
 .DS_Store
 work/
 *.ipynb
+datasets/
+results/
