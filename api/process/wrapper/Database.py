@@ -1,49 +1,58 @@
-from pymongo import MongoClient
 import os
 
-MONGO_ENDPOINT, MONGO_ENDPOINT_PORT = os.environ['MONGO_ENDPOINT'].split(":")
-MONGO_ENDPOINT_USERNAME = os.environ['MONGO_INITDB_ROOT_USERNAME']
-MONGO_ENDPOINT_PASSWORD = os.environ['MONGO_INITDB_ROOT_PASSWORD']
-MONGO_DBNAME = os.environ['MONGO_DBNAME']
+from pymongo import MongoClient
+
+MONGO_ENDPOINT, MONGO_ENDPOINT_PORT = os.environ["MONGO_ENDPOINT"].split(":")
+MONGO_ENDPOINT_USERNAME = os.environ["MONGO_INITDB_ROOT_USERNAME"]
+MONGO_ENDPOINT_PASSWORD = os.environ["MONGO_INITDB_ROOT_PASSWORD"]
+MONGO_DBNAME = os.environ["MONGO_DBNAME"]
+
 
 class MongoDBWrapper:
-    def __init__(self):
+    def __init__(
+        self,
+        endpoint: str = None,
+        port: str = None,
+        username: str = None,
+        password: str = None,
+        authSource: str = "admin",
+        **kwargs
+    ):
         """
         Initialize the MongoDBWrapper.
         """
         self.client = MongoClient(
-                            MONGO_ENDPOINT, 
-                            int(MONGO_ENDPOINT_PORT), 
-                            username=MONGO_ENDPOINT_USERNAME, 
-                            password=MONGO_ENDPOINT_PASSWORD, 
-                            authSource='admin'
-                        )
+            endpoint or MONGO_ENDPOINT,
+            int(port) if port is not None else int(MONGO_ENDPOINT_PORT),
+            username=username or MONGO_ENDPOINT_USERNAME,
+            password=password or MONGO_ENDPOINT_PASSWORD,
+            authSource=authSource,
+        )
         self.database = self.client[MONGO_DBNAME]
         self.create_indexes()
 
-    
     def create_indexes(self):
-        collections = ['cea', 'cta', 'cpa', 'ceaPrelinking', 'candidateScored']
+        collections = ["cea", "cta", "cpa", "ceaPrelinking", "candidateScored"]
         for collection in collections:
             c = self.get_collection(collection)
-            c.create_index([('tableName', 1), ('datasetName', 1)])
-            c.create_index([('tableName', 1), ('datasetName', 1), ('page', 1)])
-            c.create_index([('datasetName', 1)])
-            c.create_index([('tableName', 1)])
-            
-        c = self.get_collection('row')
-        c.create_index([('state', 1)])
-        c.create_index([('datasetName', 1)])
-        c.create_index([('datasetName', 1), ('tableName', 1)])
+            c.create_index([("tableName", 1), ("datasetName", 1)])
+            c.create_index([("tableName", 1), ("datasetName", 1), ("page", 1)])
+            c.create_index([("datasetName", 1)])
+            c.create_index([("tableName", 1)])
 
-        c = self.get_collection('dataset')
-        c.create_index([('datasetName', 1)], unique=True)
-        
-        c = self.get_collection('table')
-        c.create_index([('datasetName', 1)])
-        c.create_index([('tableName', 1)])
-        c.create_index([('datasetName', 1), ('tableName', 1)], unique=True)
-        c.create_index([('idJob', 1)])
+        c = self.get_collection("row")
+        c.create_index([("state", 1)])
+        c.create_index([("datasetName", 1)])
+        c.create_index([("datasetName", 1), ("tableName", 1)])
+
+        c = self.get_collection("dataset")
+        c.create_index([("datasetName", 1)], unique=True)
+
+        c = self.get_collection("table")
+        c.create_index([("datasetName", 1)])
+        c.create_index([("tableName", 1)])
+        c.create_index([("datasetName", 1), ("tableName", 1)], unique=True)
+        c.create_index([("idJob", 1)])
 
     def get_collection(self, collection_name):
         """
@@ -89,7 +98,7 @@ class MongoDBWrapper:
         :return: Modified count.
         """
         collection = self.get_collection(collection_name)
-        return collection.update_many(query, {'$set': new_values}).modified_count
+        return collection.update_many(query, {"$set": new_values}).modified_count
 
     def delete(self, collection_name, query):
         """
@@ -115,6 +124,7 @@ class MongoDBWrapper:
         Close the database connection.
         """
         self.client.close()
+
 
 # Usage example:
 # db = MongoDBWrapper("mydb")

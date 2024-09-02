@@ -1,9 +1,11 @@
 import os
-import redis
 import time
+
+import redis
 
 REDIS_ENDPOINT = os.environ["REDIS_ENDPOINT"]
 REDIS_JOB_DB = int(os.environ["REDIS_JOB_DB"])
+
 
 # Function to get the 'STOP' status from Redis with retry logic
 def get_stop_status_from_redis(retries=5, delay=3):
@@ -17,6 +19,7 @@ def get_stop_status_from_redis(retries=5, delay=3):
             return get_stop_status_from_redis(retries - 1, delay)
         else:
             raise Exception("Max retries reached. Redis server is not responding.")
+
 
 # Call the function to get the 'STOP' status
 stop = get_stop_status_from_redis()

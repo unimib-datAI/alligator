@@ -22,9 +22,9 @@ class FeaturesExtractionRevision:
             rows (list): List of rows containing data.
         """
         self._rows = rows
-        self._cta = {str(id_col):{} for id_col in range(len(self._rows[0]))}
-        self._cpa = {str(id_col):{} for id_col in range(len(self._rows[0]))}
-        self._cpa_pair = {str(id_col):{} for id_col in range(len(self._rows[0]))}
+        self._cta = {str(id_col): {} for id_col in range(len(self._rows[0]))}
+        self._cpa = {str(id_col): {} for id_col in range(len(self._rows[0]))}
+        self._cpa_pair = {str(id_col): {} for id_col in range(len(self._rows[0]))}
         self._compute_cta_and_cpa_freq()
 
     def compute_features(self):
@@ -55,10 +55,14 @@ class FeaturesExtractionRevision:
                     candidate_predicates_freq = {}
                     for id_predicate in predicates:
                         if id_predicate in self._cpa[id_col]:
-                            candidate_predicates_freq[id_predicate] = self._cpa[id_col][id_predicate] * predicates[id_predicate]
+                            candidate_predicates_freq[id_predicate] = (
+                                self._cpa[id_col][id_predicate] * predicates[id_predicate]
+                            )
 
                     candidate_types_freq = sorted(candidate_types_freq.items(), key=lambda x: x[1], reverse=True)
-                    candidate_predicates_freq = sorted(candidate_predicates_freq.items(), key=lambda x: x[1], reverse=True)
+                    candidate_predicates_freq = sorted(
+                        candidate_predicates_freq.items(), key=lambda x: x[1], reverse=True
+                    )
 
                     for i in range(0, 5):
                         freq = 0
@@ -73,7 +77,6 @@ class FeaturesExtractionRevision:
                         candidate["features"][f"cpa_t{i+1}"] = round(freq, 3)
 
                     features[int(id_col)].append(list(candidate["features"].values()))
-
         return features
 
     def _compute_cta_and_cpa_freq(self):
@@ -113,9 +116,11 @@ class FeaturesExtractionRevision:
         n_rows = len(self._rows)
         for id_col in self._cta:
             for id_type in self._cta[id_col]:
-                self._cta[id_col][id_type] = round(self._cta[id_col][id_type]/n_rows, 3)
+                self._cta[id_col][id_type] = round(self._cta[id_col][id_type] / n_rows, 3)
             for id_predicate in self._cpa[id_col]:
-                self._cpa[id_col][id_predicate] = round(self._cpa[id_col][id_predicate]/n_rows, 3)
+                self._cpa[id_col][id_predicate] = round(self._cpa[id_col][id_predicate] / n_rows, 3)
             for id_col_rel in self._cpa_pair[id_col]:
                 for id_predicate in self._cpa_pair[id_col][id_col_rel]:
-                    self._cpa_pair[id_col][id_col_rel][id_predicate] = round(self._cpa_pair[id_col][id_col_rel][id_predicate]/n_rows, 3)
+                    self._cpa_pair[id_col][id_col_rel][id_predicate] = round(
+                        self._cpa_pair[id_col][id_col_rel][id_predicate] / n_rows, 3
+                    )
