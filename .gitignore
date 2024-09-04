@@ -168,4 +168,5 @@ api/datasets
 results
 training/
 .vscode/
+finetuning/
 
