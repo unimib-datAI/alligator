@@ -63,10 +63,8 @@ def generate_api_format(
     include_ids=False,
     header="infer",
 ):
-    tables = os.listdir(tables_path)
     buffer = []
-    candidates_to_be_covered = {}
-    key_to_cell = {}
+    tables = os.listdir(tables_path)
     for table in tqdm(tables):
         name = os.path.splitext(table)[0]
         if table.startswith("."):
@@ -119,39 +117,10 @@ def generate_api_format(
                 table["metadata"]["column"].append({"idColumn": id_col, "tag": "NE"})
 
         buffer.append(table)
-        for id_row, row in enumerate(rows):
-            for id_col, cell in enumerate(row):
-                key = f"{name} {id_row} {id_col}"
-                key_to_cell[key] = cell
-
-    for key in cell_to_entity:
-        name, id_row, id_col = key.split(" ")
-        if not minimum_row_is_zero:
-            id_row = int(id_row)
-            id_row -= 1
-        new_key = f"{name} {id_row} {id_col}"
-        if new_key not in key_to_cell:
-            continue
-        cell = clean_str(key_to_cell[new_key])
-        if cell not in candidates_to_be_covered:
-            candidates_to_be_covered[cell] = set()
-        candidates_to_be_covered[cell].add(cell_to_entity[key])
-
-    for cell in candidates_to_be_covered:
-        candidates_to_be_covered[cell] = list(candidates_to_be_covered[cell])
-
-    return buffer, candidates_to_be_covered
+    return buffer
 
 
 if __name__ == "__main__":
-    # datasets = {
-    #     "turl-120k": {
-    #         "tables": "/home/gatoraid/alligator/datasets/turl-120k/tables",
-    #         "cea": "/home/gatoraid/alligator/datasets/turl-120k/gt/gt.csv",
-    #         "cpa": "",
-    #         "cta": "",
-    #     }
-    # }
     datasets = {
         # Parameters:
         # gt separator: ","
@@ -159,9 +128,22 @@ if __name__ == "__main__":
         # invert_rows_cols: False
         # include_ids: True
         # header: "infer"
-        "turl-2k-2nd-turl-scratch": {
-            "tables": "/home/gatoraid/alligator/datasets/turl-2k/tables",
-            "cea": "/home/gatoraid/alligator/datasets/turl-2k/gt/cea.csv",
+        # "turl-2k-2nd-turl-scratch": {
+        #     "tables": "/home/gatoraid/alligator/datasets/turl-2k/tables",
+        #     "cea": "/home/gatoraid/alligator/datasets/turl-2k/gt/cea.csv",
+        #     "cpa": "",
+        #     "cta": "",
+        # },
+
+        # Parameters:
+        # gt separator: ","
+        # tables separator: ","
+        # invert_rows_cols: False
+        # include_ids: True
+        # header: "infer"
+        "turl-120k": {
+            "tables": "/home/gatoraid/alligator/datasets/turl-120k/tables",
+            "cea": "/home/gatoraid/alligator/datasets/turl-120k/gt/cea.csv",
             "cpa": "",
             "cta": "",
         },
@@ -172,30 +154,30 @@ if __name__ == "__main__":
         # invert_rows_cols: False
         # include_ids: True
         # header: "infer"
-        "htr1-baseline": {
-            "tables": "/home/gatoraid/alligator/datasets/hardtabler1/valid/tables",
-            "cea": "/home/gatoraid/alligator/datasets/hardtabler1/valid/gt/cea_gt.csv",
-            "cpa": "",
-            "cta": "",
-        },
-        "htr2-baseline": {
-            "tables": "/home/gatoraid/alligator/datasets/hardtabler2/valid/tables",
-            "cea": "/home/gatoraid/alligator/datasets/hardtabler2/valid/gt/cea_gt.csv",
-            "cpa": "",
-            "cta": "",
-        },
-        "2t-baseline": {
-            "tables": "/home/gatoraid/alligator/datasets/2t/valid/tables",
-            "cea": "/home/gatoraid/alligator/datasets/2t/valid/gt/cea_gt.csv",
-            "cpa": "",
-            "cta": "",
-        },
-        "wdt-r1-2023-baseline": {
-            "tables": "/home/gatoraid/alligator/datasets/wikidatatables2023r1/valid/tables",
-            "cea": "/home/gatoraid/alligator/datasets/wikidatatables2023r1/valid/gt/cea_gt.csv",
-            "cpa": "",
-            "cta": "",
-        },
+        # "htr1-baseline": {
+        #     "tables": "/home/gatoraid/alligator/datasets/hardtabler1/valid/tables",
+        #     "cea": "/home/gatoraid/alligator/datasets/hardtabler1/valid/gt/cea_gt.csv",
+        #     "cpa": "",
+        #     "cta": "",
+        # },
+        # "htr2-baseline": {
+        #     "tables": "/home/gatoraid/alligator/datasets/hardtabler2/valid/tables",
+        #     "cea": "/home/gatoraid/alligator/datasets/hardtabler2/valid/gt/cea_gt.csv",
+        #     "cpa": "",
+        #     "cta": "",
+        # },
+        # "2t-baseline": {
+        #     "tables": "/home/gatoraid/alligator/datasets/2t/valid/tables",
+        #     "cea": "/home/gatoraid/alligator/datasets/2t/valid/gt/cea_gt.csv",
+        #     "cpa": "",
+        #     "cta": "",
+        # },
+        # "wdt-r1-2023-baseline": {
+        #     "tables": "/home/gatoraid/alligator/datasets/wikidatatables2023r1/valid/tables",
+        #     "cea": "/home/gatoraid/alligator/datasets/wikidatatables2023r1/valid/gt/cea_gt.csv",
+        #     "cpa": "",
+        #     "cta": "",
+        # },
 
         # Parameters:
         # gt separator: ","
@@ -203,12 +185,12 @@ if __name__ == "__main__":
         # invert_rows_cols: True
         # include_ids: True
         # header: None
-        "biodiv-cikm-2nd-turl-scratch": {
-            "tables": "/home/gatoraid/alligator/datasets/biodiv/tables",
-            "cea": "/home/gatoraid/alligator/datasets/biodiv/gt/cea_gt.csv",
-            "cpa": "",
-            "cta": "",
-        },
+        # "biodiv-cikm-2nd-turl-scratch": {
+        #     "tables": "/home/gatoraid/alligator/datasets/biodiv/tables",
+        #     "cea": "/home/gatoraid/alligator/datasets/biodiv/gt/cea_gt.csv",
+        #     "cpa": "",
+        #     "cta": "",
+        # },
     }
 
     headers = {
@@ -218,7 +200,6 @@ if __name__ == "__main__":
 
     params = (("token", "alligator_demo_2023"), ("kg", "wikidata"))
 
-    global_candidates_to_be_covered = {}
     for dataset in datasets:
         tables_path, cea_target_path, cpa_target_path, cta_target_path = list(datasets[dataset].values())
         cell_to_entity, NE_cols, minimum_row_is_zero = cea_process(
@@ -226,13 +207,13 @@ if __name__ == "__main__":
             separator=",",
             invert_rows_cols=False,
         )
-        buffer, candidates_to_be_covered = generate_api_format(
+        buffer = generate_api_format(
             dataset,
             tables_path,
             cell_to_entity,
             NE_cols,
             minimum_row_is_zero,
-            separator=";",
+            separator=",",
             include_ids=True,
             header="infer",
         )
@@ -242,10 +223,3 @@ if __name__ == "__main__":
             params=params,
             json=buffer,
         )
-        result = response.json()
-        for cell in candidates_to_be_covered:
-            if cell not in global_candidates_to_be_covered:
-                global_candidates_to_be_covered[cell] = set()
-            global_candidates_to_be_covered[cell].update(candidates_to_be_covered[cell])
-    for cell in global_candidates_to_be_covered:
-        global_candidates_to_be_covered[cell] = extract_qids_from_urls(list(global_candidates_to_be_covered[cell]))
