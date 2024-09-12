@@ -4,11 +4,9 @@ import math  # For mathematical operations
 import os  # For interacting with the operating system
 import traceback  # To provide details of exceptions
 
-import pandas as pd  # Popular data manipulation package
 import pymongo  # MongoDB database interface
 import redis  # Redis database interface
-import tensorflow as tf
-from flask import Flask, jsonify, request  # Flask web framework components
+from flask import Flask, request  # Flask web framework components
 from flask_cors import CORS  # To handle Cross-Origin Resource Sharing (CORS)
 
 # Extensions for Flask to ease REST API development
@@ -643,7 +641,7 @@ class TableID(Resource):
                 winning_candidates = result["winningCandidates"]
                 for id_col, candidates in enumerate(winning_candidates):
                     entities = []
-                    for candidate in candidates[0:3]:
+                    for candidate in candidates:
                         entities.append(
                             {
                                 "id": candidate["id"],
