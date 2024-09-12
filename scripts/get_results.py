@@ -15,12 +15,13 @@ if __name__ == "__main__":
         default="http://localhost:5043",
     )
     # parser.add_argument("--dataset_name", type=str, default="biodiv-cikm-2nd-turl-scratch")
-    parser.add_argument("--dataset_name", type=str, default="turl-2k-2nd-turl-scratch")
+    # parser.add_argument("--dataset_name", type=str, default="htr2-rn-from-scratch-turl-120k")
+    parser.add_argument("--dataset_name", type=str, default="htr2-rn-from-scratch-turl-120k-correct-qids")
     parser.add_argument(
         "--gt_path",
         type=str,
         help="Path to the ground truth",
-        default="/home/gatoraid/alligator/datasets/turl-2k/gt/cea.csv",  # "/home/gatoraid/alligator/datasets/biodiv/gt/cea_gt.csv",
+        default="/home/gatoraid/alligator/datasets/hardtabler2/valid/gt/cea_gt.csv",  # "/home/gatoraid/alligator/datasets/biodiv/gt/cea_gt.csv",
     )
     parser.add_argument(
         "--output_path",
@@ -76,7 +77,7 @@ if __name__ == "__main__":
                 if len(annotation["entity"]) > 0:
                     all_predicted += 1
                     predicted_qid = annotation["entity"][0]["id"]
-                if key in gt_mapping and predicted_qid != "" and predicted_qid in gt_mapping[key]["target"]:
+                if predicted_qid != "" and predicted_qid in gt_mapping[key]["target"]:
                     tp += 1
     precision = tp / all_predicted
     recall = tp / all_gt

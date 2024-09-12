@@ -36,7 +36,6 @@ class Lookup:
             if i in self._target["NE"]:
                 qid = ids[i] if ids is not None else None
                 types = self._types.get(str(i))
-                description = " ".join(list(set(cells_as_strings) - set([cell])))  # unused
 
                 if cell in self._cache:
                     candidates = self._cache.get(cell, [])

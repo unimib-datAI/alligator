@@ -69,14 +69,13 @@ def generate_api_format(
         name = os.path.splitext(table)[0]
         if table.startswith("."):
             continue
-        id_row = 1
         try:
             df = pd.read_csv(f"{tables_path}/{table}", sep=separator, header=header)  # Change delimiter if different
             if header is None:
                 df.columns = ["col" + str(i) for i in range(len(df.columns))]
         except pd.errors.ParserError:
             print(f"Error parsing {tables_path}/{table}")
-            exit()
+            continue
         for column in df.columns:
             if df[column].dtype == "float64":
                 # For float columns, fill with 0 or another appropriate value like df[column].mean()
@@ -128,12 +127,24 @@ if __name__ == "__main__":
         # invert_rows_cols: False
         # include_ids: True
         # header: "infer"
-        # "turl-2k-2nd-turl-scratch": {
+        # "turl-2k-rn-from-scratch-turl-120k-no-correct-qids": {
         #     "tables": "/home/gatoraid/alligator/datasets/turl-2k/tables",
         #     "cea": "/home/gatoraid/alligator/datasets/turl-2k/gt/cea.csv",
         #     "cpa": "",
         #     "cta": "",
         # },
+        # Parameters:
+        # gt separator: ","
+        # tables separator: ","
+        # invert_rows_cols: False
+        # include_ids: True
+        # header: "infer"
+        # "turl-120k-correct-qid": {
+        #     "tables": "/home/gatoraid/alligator/datasets/turl-120k/tables",
+        #     "cea": "/home/gatoraid/alligator/datasets/turl-120k/gt/cea.csv",
+        #     "cpa": "",
+        #     "cta": "",
+        # },
 
         # Parameters:
         # gt separator: ","
@@ -141,31 +152,18 @@ if __name__ == "__main__":
         # invert_rows_cols: False
         # include_ids: True
         # header: "infer"
-        "turl-120k": {
-            "tables": "/home/gatoraid/alligator/datasets/turl-120k/tables",
-            "cea": "/home/gatoraid/alligator/datasets/turl-120k/gt/cea.csv",
-            "cpa": "",
-            "cta": "",
-        },
-
-        # Parameters:
-        # gt separator: ","
-        # tables separator: ","
-        # invert_rows_cols: False
-        # include_ids: True
-        # header: "infer"
-        # "htr1-baseline": {
+        # "htr1-rn-from-scratch-turl-120k-correct-qids": {
         #     "tables": "/home/gatoraid/alligator/datasets/hardtabler1/valid/tables",
         #     "cea": "/home/gatoraid/alligator/datasets/hardtabler1/valid/gt/cea_gt.csv",
         #     "cpa": "",
         #     "cta": "",
         # },
-        # "htr2-baseline": {
-        #     "tables": "/home/gatoraid/alligator/datasets/hardtabler2/valid/tables",
-        #     "cea": "/home/gatoraid/alligator/datasets/hardtabler2/valid/gt/cea_gt.csv",
-        #     "cpa": "",
-        #     "cta": "",
-        # },
+        "htr2-rn-from-scratch-turl-120k-correct-qids": {
+            "tables": "/home/gatoraid/alligator/datasets/hardtabler2/valid/tables",
+            "cea": "/home/gatoraid/alligator/datasets/hardtabler2/valid/gt/cea_gt.csv",
+            "cpa": "",
+            "cta": "",
+        },
         # "2t-baseline": {
         #     "tables": "/home/gatoraid/alligator/datasets/2t/valid/tables",
         #     "cea": "/home/gatoraid/alligator/datasets/2t/valid/gt/cea_gt.csv",
@@ -185,7 +183,7 @@ if __name__ == "__main__":
         # invert_rows_cols: True
         # include_ids: True
         # header: None
-        # "biodiv-cikm-2nd-turl-scratch": {
+        # "biodiv-rn-from-scratch-turl-120k-no-correct-qids": {
         #     "tables": "/home/gatoraid/alligator/datasets/biodiv/tables",
         #     "cea": "/home/gatoraid/alligator/datasets/biodiv/gt/cea_gt.csv",
         #     "cpa": "",
