@@ -1,3 +1,4 @@
+import traceback
 import pandas as pd
 import math
 import time
@@ -68,8 +69,9 @@ class TableModel:
                 processed_data.append(entry)
 
         self.data.extend(processed_data)
-
-    def parse_csv(self, file_path, dataset_name, table_name, kg_reference):
+        
+            
+    def parse_csv(self, file_path, dataset_name, table_name, kg_reference, types=None, NERTypes=None, d_types=None, l_types=None):
         # Read the CSV file using pandas
         df = pd.read_csv(file_path)
         # Extract headers
@@ -87,8 +89,15 @@ class TableModel:
             "status": "TODO",
             "state": "READY",
             "candidateSize": 100,
-            "page": 1
+            "page": 1,
+            "types": types,
+            "NERTypes" : NERTypes,
+            "d_types": d_types,
+            "l_types": l_types
         }
+        
+        
+        
 
         self.fill_table_metadata(table_obj)    
         # Split DataFrame rows into chunks of CHUNK_SIZE and create new table entries for each chunk

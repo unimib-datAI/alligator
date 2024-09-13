@@ -159,7 +159,7 @@ class LamAPI():
         }
         return await self.__submit_post(self._url.entities_literals_url(), params, json_data)
 
-    async def lookup(self, string, ngrams=False, fuzzy=False, types=None, limit=100, ids=None):
+    async def lookup(self, string, ngrams=False, fuzzy=False, types=None, NERTypes=None, limit=100, ids=None):
         # Convert boolean values to strings
         ngrams_str = 'true' if ngrams else 'false'
         fuzzy_str = 'true' if fuzzy else 'false'
@@ -174,11 +174,29 @@ class LamAPI():
             'kg': self.kg,
             'limit': limit
         }
-        if types_str is not None:
-            params['types'] = types_str
-            
+        
+        if types is not None and types is not " ":
+            params['types'] = types
+        else:
+            params['types'] = ""
+        
+        if NERTypes is not None and NERTypes is not " ":
+            NERTypes = NERTypes.split(" ")
+            result = []
+            # limit = limit/len(NERTypes)
+            for NERType in NERTypes:
+                params['NERtype'] = NERType
+                r=await self.__submit_get(self._url.lookup_url(), params)
+                if len(r) >= 1 and "wikidata" not in r and "error" not in r:
+                    result.extend(r)
+            if len(result) >= 1 and "wikidata" not in result and "error" not in result:
+                result = {"wikidata": result}
+            return result
+        else:
+            params['NERtype'] = ""
+
         result = await self.__submit_get(self._url.lookup_url(), params)
-        if len(result) > 1:
+        if len(result) >= 1 and "wikidata" not in result and "error" not in result:
             result = {"wikidata": result}
 
         return result
