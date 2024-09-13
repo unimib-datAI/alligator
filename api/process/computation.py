@@ -21,10 +21,9 @@ async def main():
     start = time.time()
 
     pn_neural_path = "./process/ml_models/Linker_PN_100.h5"
-    # pn_neural_path = "./process/ml_models/PN_model_from_scratch_turl-120k-filtered.h5"
     rn_neural_path = "./process/ml_models/Linker_RN_100.h5"
-    # rn_neural_path = "./process/ml_models/RN_model_finetuned_turl-120k-filtered.h5"
-    # rn_neural_path = "./process/ml_models/RN_model_from_scratch_turl-120k-filtered.h5"
+    # rn_neural_path = "./process/ml_models/RN_model_from_scratch_turl-120k-correct-qid-filtered.h5"
+    # rn_neural_path = "./process/ml_models/RN_model_from_scratch_turl-120k-no-correct-qid-filtered.h5"
 
     pn_model = load_model(pn_neural_path)
     rn_model = load_model(rn_neural_path)
