@@ -1,5 +1,6 @@
 import asyncio
 import traceback
+import json
 from model.row import Row
 
  
@@ -8,7 +9,8 @@ class Lookup:
         self._header = data.get("header", [])
         self._dataset_name = data["datasetName"]
         self._table_name = data["tableName"]
-        self._types = data.get("types", {})    
+        self._types = data.get("types", {})
+        self._NERTypes = data.get("NERTypes", {})
         self._lamAPI = lamAPI
         self._target = target
         self._log_c = log_c
@@ -30,17 +32,25 @@ class Lookup:
         row = Row(id_row, len(cells))
         cells_as_strings = [str(cell) for cell in cells]
         row_text = " ".join(cells_as_strings)
+        num_type = 0
         for i, cell in enumerate(cells):
             if i in self._target["NE"]:
-                types = self._types.get(str(i))
+                if self._types is not None and num_type < len(self._types):
+                    types = self._types[num_type]
+                    num_type += 1
+                else:
+                    types = None
                 description = " ".join(list(set(cells_as_strings) - set([cell]))) # unused
-
+                if self._NERTypes is not None and num_type < len(self._NERTypes):
+                    NERType = self._NERTypes[num_type]
+                    num_type += 1
+                else: 
+                    NERType = None
                 if cell in self._cache:
                     candidates = self._cache.get(cell, [])
                 else:
-                    candidates = await self._get_candidates(cell, id_row, types)
+                    candidates = await self._get_candidates(cell, id_row, types, NERType)
                     self._cache[cell] = candidates
-                
                 is_subject = i == self._target["SUBJ"]
                 row.add_ne_cell(cell, row_text, candidates, i, is_subject)
             elif i in self._target["LIT"]:
@@ -50,15 +60,15 @@ class Lookup:
         return row
 
     
-    async def _get_candidates(self, cell, id_row, types):
+    async def _get_candidates(self, cell, id_row, types, NERType):
         candidates = []
         result = None
         try:
             if len(str(cell)) > 0 and str(cell).lower() != "nan":
-                result = await self._lamAPI.lookup(cell, limit=100)
-                if cell not in result:
+                result = await self._lamAPI.lookup(cell, types=types, NERTypes=NERType, limit=100)
+                if 'error' in result or len(result) == 0:
                     raise Exception("Error from lamAPI")
-                candidates = result[cell]    
+                candidates = result["wikidata"]
         except Exception as e:
             self._log_c.insert_one({
                 'datasetName': self._dataset_name,
