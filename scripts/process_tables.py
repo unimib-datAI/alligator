@@ -20,9 +20,13 @@ def cea_process(
     cea_target_path,
     separator=",",
     invert_rows_cols: bool = False,
+    drop_nil: bool = False,
 ):
     url_regex = re.compile(r"http(s)?\:\/\/www\.wikidata\.org\/(wiki|entity)\/")
     cea_gt = pd.read_csv(cea_target_path, sep=separator, header=None)
+    if drop_nil:
+        cea_gt = cea_gt[cea_gt[3] != "NIL"]
+        cea_gt = cea_gt[cea_gt[3] != ""]
     cea_gt.iloc[:, -1] = cea_gt.iloc[:, -1].apply(lambda x: url_regex.sub("", x))
     cea_gt[1] = cea_gt[1].astype(int)
     cea_gt[2] = cea_gt[2].astype(int)
@@ -62,6 +66,7 @@ def generate_api_format(
     separator=";",
     include_ids=False,
     header="infer",
+    columns_to_exclude=[],
 ):
     buffer = []
     tables = os.listdir(tables_path)
@@ -71,6 +76,7 @@ def generate_api_format(
             continue
         try:
             df = pd.read_csv(f"{tables_path}/{table}", sep=separator, header=header)  # Change delimiter if different
+            df = df.drop(columns=columns_to_exclude)
             if header is None:
                 df.columns = ["col" + str(i) for i in range(len(df.columns))]
         except pd.errors.ParserError:
@@ -145,38 +151,36 @@ if __name__ == "__main__":
         #     "cpa": "",
         #     "cta": "",
         # },
-
         # Parameters:
         # gt separator: ","
         # tables separator: ","
         # invert_rows_cols: False
         # include_ids: True
         # header: "infer"
-        # "htr1-rn-from-scratch-turl-120k-correct-qids": {
-        #     "tables": "/home/gatoraid/alligator/datasets/hardtabler1/valid/tables",
-        #     "cea": "/home/gatoraid/alligator/datasets/hardtabler1/valid/gt/cea_gt.csv",
+        # "htr1-baseline-no-qids": {
+        #     "tables": "/home/gatoraid/alligator/datasets/hardtabler1/tables",
+        #     "cea": "/home/gatoraid/alligator/datasets/hardtabler1/gt/cea_gt.csv",
         #     "cpa": "",
         #     "cta": "",
         # },
-        "htr2-rn-from-scratch-turl-120k-correct-qids": {
-            "tables": "/home/gatoraid/alligator/datasets/hardtabler2/valid/tables",
-            "cea": "/home/gatoraid/alligator/datasets/hardtabler2/valid/gt/cea_gt.csv",
-            "cpa": "",
-            "cta": "",
-        },
+        # "htr2-rn-from-scratch-turl-120k-correct-qids": {
+        #     "tables": "/home/gatoraid/alligator/datasets/hardtabler2/tables",
+        #     "cea": "/home/gatoraid/alligator/datasets/hardtabler2/gt/cea_gt.csv",
+        #     "cpa": "",
+        #     "cta": "",
+        # },
         # "2t-baseline": {
-        #     "tables": "/home/gatoraid/alligator/datasets/2t/valid/tables",
-        #     "cea": "/home/gatoraid/alligator/datasets/2t/valid/gt/cea_gt.csv",
+        #     "tables": "/home/gatoraid/alligator/datasets/2t/tables",
+        #     "cea": "/home/gatoraid/alligator/datasets/2t/gt/cea_gt.csv",
         #     "cpa": "",
         #     "cta": "",
         # },
         # "wdt-r1-2023-baseline": {
-        #     "tables": "/home/gatoraid/alligator/datasets/wikidatatables2023r1/valid/tables",
-        #     "cea": "/home/gatoraid/alligator/datasets/wikidatatables2023r1/valid/gt/cea_gt.csv",
+        #     "tables": "/home/gatoraid/alligator/datasets/wikidatatables2023r1/tables",
+        #     "cea": "/home/gatoraid/alligator/datasets/wikidatatables2023r1/gt/cea_gt.csv",
         #     "cpa": "",
         #     "cta": "",
         # },
-
         # Parameters:
         # gt separator: ","
         # tables separator: ","
@@ -189,6 +193,32 @@ if __name__ == "__main__":
         #     "cpa": "",
         #     "cta": "",
         # },
+        # Parameters:
+        # gt separator: ","
+        # tables separator: ","
+        # invert_rows_cols: True
+        # include_ids: True
+        # header: None
+        # columns_to_exclude: ["HIL_total"]
+        # "sn-linker-nil": {
+        #     "tables": "/home/gatoraid/alligator/datasets/sn/tables",
+        #     "cea": "/home/gatoraid/alligator/datasets/sn/gt/cea_gt.csv",
+        #     "cpa": "",
+        #     "cta": "",
+        # },
+        # Parameters:
+        # gt separator: ","
+        # tables separator: ","
+        # invert_rows_cols: True
+        # include_ids: True
+        # header: None
+        # columns_to_exclude: ["idd", "id"]
+        "gh-end-to-end-nil": {
+            "tables": "/home/gatoraid/alligator/datasets/gh/tables",
+            "cea": "/home/gatoraid/alligator/datasets/gh/gt/cea_gt.csv",
+            "cpa": "",
+            "cta": "",
+        },
     }
 
     headers = {
@@ -197,6 +227,14 @@ if __name__ == "__main__":
     }
 
     params = (("token", "alligator_demo_2023"), ("kg", "wikidata"))
+    # params = (
+    #     ("token", "alligator_demo_2023"),
+    #     ("kgReference", "wikidata"),
+    #     ("columnTypes", None),
+    #     ("columnNERTypes", None),
+    #     ("columnDataTypes", None),
+    #     ("litTypes", None),
+    # )
 
     for dataset in datasets:
         tables_path, cea_target_path, cpa_target_path, cta_target_path = list(datasets[dataset].values())
@@ -212,8 +250,9 @@ if __name__ == "__main__":
             NE_cols,
             minimum_row_is_zero,
             separator=",",
-            include_ids=True,
+            include_ids=False,
             header="infer",
+            columns_to_exclude=["idd", "id"],
         )
         response = requests.post(
             "http://127.0.0.1:5042//dataset/createWithArray",

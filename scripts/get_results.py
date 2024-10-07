@@ -16,12 +16,12 @@ if __name__ == "__main__":
     )
     # parser.add_argument("--dataset_name", type=str, default="biodiv-cikm-2nd-turl-scratch")
     # parser.add_argument("--dataset_name", type=str, default="htr2-rn-from-scratch-turl-120k")
-    parser.add_argument("--dataset_name", type=str, default="htr2-rn-from-scratch-turl-120k-correct-qids")
+    parser.add_argument("--dataset_name", type=str, default="gh-end-to-end-nil")
     parser.add_argument(
         "--gt_path",
         type=str,
         help="Path to the ground truth",
-        default="/home/gatoraid/alligator/datasets/hardtabler2/valid/gt/cea_gt.csv",  # "/home/gatoraid/alligator/datasets/biodiv/gt/cea_gt.csv",
+        default="/home/gatoraid/alligator/datasets/gh/gt/cea_gt.csv",  # "/home/gatoraid/alligator/datasets/biodiv/gt/cea_gt.csv",
     )
     parser.add_argument(
         "--output_path",
@@ -45,9 +45,16 @@ if __name__ == "__main__":
     tables_names = gt["table_name"].unique().tolist()
     url_regex = re.compile(r"http(s)?\:\/\/www\.wikidata\.org\/(wiki|entity)\/")
     gt["qid"] = gt["qid"].map(lambda x: url_regex.sub("", x))
-    gt_mapping = {f"{row.table_name}-{row.row}-{row.col}": {"target": row.qid} for row in gt.itertuples()}
+    gt_mapping = {
+        f"{row.table_name}-{row.row}-{row.col}": {"target": row.qid}
+        for row in gt.itertuples()
+        if row.qid.startswith("Q")
+    }
+    gt_mapping_nil = {
+        f"{row.table_name}-{row.row}-{row.col}": {"target": row.qid} for row in gt.itertuples() if row.qid == "NIL"
+    }
     tp = 0
-    all_gt = len(gt)
+    all_gt = len(gt) - len(gt_mapping_nil)
     all_predicted = 0
     current_table = None
     current_table_name = None
@@ -71,6 +78,8 @@ if __name__ == "__main__":
                 alligator_annotations = []
             for annotation in alligator_annotations:
                 key = "{}-{}-{}".format(current_table_name, annotation["idRow"], annotation["idColumn"])
+                # if key in gt_mapping_nil:
+                #     continue
                 if key not in gt_mapping:
                     continue
                 predicted_qid = ""
