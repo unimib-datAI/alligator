@@ -32,13 +32,13 @@ class Decision:
         cea_data = []
         candidates_scored_data = []
         for row in self._rows:
-            winning_candidates = []
             cea = {}
+            winning_candidates = []
             rankend_candidates = []
             for cell in row.get_cells():
                 candidates = cell.candidates()
-                wc = []
                 rank = candidates
+                wc = []
                 if cell.qid is not None and cell.qid != "":
                     correct_cand_in = False
                     for candidate in rank:

@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 import traceback
 
@@ -13,7 +14,13 @@ LAMAPI_TOKEN = os.environ["LAMAPI_TOKEN"]
 
 class LamAPI:
     def __init__(
-        self, LAMAPI_HOST, client_key, database, response_format="json", kg="wikidata", max_concurrent_requests=50
+        self,
+        LAMAPI_HOST,
+        client_key,
+        database,
+        response_format="json",
+        max_concurrent_requests=50,
+        kg: str = "wikidata",
     ) -> None:
         self.format = response_format
         self.database = database
@@ -134,11 +141,8 @@ class LamAPI:
         json_data = {"json": entities}
         return await self.__submit_post(self._url.entities_literals_url(), params, json_data)
 
-    async def lookup(self, string, ngrams=False, fuzzy=False, types=None, limit=100, ids=None):
+    async def lookup(self, string, ids=None, lamapi_kwargs={"kg": "wikidata", "limit": 50}):
         # Convert boolean values to strings
-        ngrams_str = "true" if ngrams else "false"
-        fuzzy_str = "true" if fuzzy else "false"
-        types_str = " ".join(types) if types is not None else None
         if isinstance(ids, list):
             ids_str = " ".join(ids)
         elif ids is None:
@@ -151,17 +155,12 @@ class LamAPI:
         params = {
             "token": LAMAPI_TOKEN,
             "name": string,
-            "ngrams": ngrams_str,
-            "fuzzy": fuzzy_str,
-            "kg": self.kg,
-            "limit": limit,
             "ids": ids_str,
         }
-        if types_str is not None:
-            params["types"] = types_str
+        params.update(lamapi_kwargs)
+        for k, v in params.items():
+            if isinstance(v, bool):
+                params[k] = str(v).lower()
 
         result = await self.__submit_get(self._url.lookup_url(), params)
-        if len(result) > 1:
-            result = {"wikidata": result}
-
         return result

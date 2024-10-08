@@ -6,7 +6,7 @@ from model.row import Row
 
 
 class Lookup:
-    def __init__(self, data: object, lamAPI, target, log_c, kg_ref="wikidata", limit=100):
+    def __init__(self, data: object, lamAPI, target, log_c):
         self._header = data.get("header", [])
         self._dataset_name = data["datasetName"]
         self._table_name = data["tableName"]
@@ -14,21 +14,28 @@ class Lookup:
         self._lamAPI = lamAPI
         self._target = target
         self._log_c = log_c
-        self._kg_ref = kg_ref
-        self._limit = limit
         self._rows_data = data["rows"]
         self._rows = []
         self._cache = {}
 
-    async def generate_candidates(self):
+    async def generate_candidates(self, lamapi_kwargs={"kg": "wikidata", "limit": 50}):
         tasks = []
         for row in self._rows_data:
-            tasks.append(asyncio.create_task(self._build_row(row["data"], row["idRow"], row.get("ids", None))))
+            tasks.append(
+                asyncio.create_task(
+                    self._build_row(
+                        row["data"],
+                        row["idRow"],
+                        row.get("ids", None),
+                        lamapi_kwargs=lamapi_kwargs,
+                    )
+                )
+            )
         results = await asyncio.gather(*tasks)
         for row in results:
             self._rows.append(row)
 
-    async def _build_row(self, cells, id_row, ids=None):
+    async def _build_row(self, cells, id_row, ids=None, lamapi_kwargs={"kg": "wikidata", "limit": 50}):
         row = Row(id_row, len(cells))
         cells_as_strings = [str(cell) for cell in cells]
         row_text = " ".join(cells_as_strings)
@@ -40,9 +47,8 @@ class Lookup:
                 if cell in self._cache:
                     candidates = self._cache.get(cell, [])
                 else:
-                    candidates = await self._get_candidates(cell, id_row, types, qid)
+                    candidates = await self._get_candidates(cell, id_row, types, qid, lamapi_kwargs=lamapi_kwargs)
                     self._cache[cell] = candidates
-
                 is_subject = i == self._target["SUBJ"]
                 row.add_ne_cell(cell, row_text, candidates, i, is_subject, qid=qid)
             elif i in self._target["LIT"]:
@@ -51,15 +57,10 @@ class Lookup:
                 row.add_notag_cell(cell, i)
         return row
 
-    async def _get_candidates(self, cell, id_row, types, qid=None):
+    async def _get_candidates(self, cell, id_row, types, qid=None, lamapi_kwargs={"kg": "wikidata", "limit": 50}):
         candidates = []
-        result = None
         try:
-            if len(str(cell)) > 0 and str(cell).lower() != "nan":
-                result = await self._lamAPI.lookup(cell, limit=100, ids=qid)
-                if cell not in result:
-                    raise Exception("Error from lamAPI")
-                candidates = result[cell]
+            candidates = await self._lamAPI.lookup(cell, ids=qid, lamapi_kwargs=lamapi_kwargs)
         except Exception as e:
             self._log_c.insert_one(
                 {
@@ -70,11 +71,9 @@ class Lookup:
                     "types": types,
                     "error": str(e),
                     "stackTrace": traceback.format_exc(),
-                    "result": result,
+                    "result": candidates,
                 }
             )
-            return []
-
         return candidates
 
     def get_rows(self) -> List[Row]:

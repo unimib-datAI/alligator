@@ -53,8 +53,6 @@ async def main():
         sys.exit(0)
 
     rows_data = data["rows"]
-    kg_reference = data["kgReference"]
-    limit = data["candidateSize"]
     column_metadata = data["column"]
     target = data["target"]
     _id = data["_id"]
@@ -62,7 +60,10 @@ async def main():
     table_name = data["tableName"]
     page = data["page"]
     header = data["header"]
+    lamapi_kwargs = data.get("lamapi_kwargs", {"kg": "wikidata", "limit": 50})
+    kg_reference = lamapi_kwargs.get("kg", "wikidata")
 
+    # Instantiate the LAMAPI object
     lamAPI = LamAPI(LAMAPI_HOST, LAMAPI_TOKEN, mongoDBWrapper, kg=kg_reference)
 
     obj_row_update = {"status": "DONE", "time": None}
@@ -88,8 +89,8 @@ async def main():
             "candidateScored": candidate_scored_c,
         }
         dp.rows_normalization()
-        l = Lookup(data, lamAPI, target, log_c, kg_reference, limit)
-        await l.generate_candidates()
+        l = Lookup(data, lamAPI, target, log_c)
+        await l.generate_candidates(lamapi_kwargs=lamapi_kwargs)
         rows = l.get_rows()
         features = await FeauturesExtraction(rows, lamAPI).compute_feautures()
         Prediction(rows, features, pn_model).compute_prediction("rho")
