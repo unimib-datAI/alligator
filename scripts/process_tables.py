@@ -97,8 +97,7 @@ def generate_api_format(
             "rows": [],
             "semanticAnnotations": {},
             "metadata": {"column": []},
-            "kgReference": "wikidata",
-            "candidateSize": 100,
+            "lamapi_kwargs": {"kg": "wikidata", "limit": 50, "kind": "entity", "language": "en", "cache": False},
         }
         rows = json_data["data"]
         id_row = 1
@@ -196,9 +195,9 @@ if __name__ == "__main__":
         # Parameters:
         # gt separator: ","
         # tables separator: ","
-        # invert_rows_cols: True
+        # invert_rows_cols: False
         # include_ids: True
-        # header: None
+        # header: infer
         # columns_to_exclude: ["HIL_total"]
         # "sn-linker-nil": {
         #     "tables": "/home/gatoraid/alligator/datasets/sn/tables",
@@ -209,11 +208,11 @@ if __name__ == "__main__":
         # Parameters:
         # gt separator: ","
         # tables separator: ","
-        # invert_rows_cols: True
-        # include_ids: True
-        # header: None
+        # invert_rows_cols: False
+        # include_ids: False
+        # header: infer
         # columns_to_exclude: ["idd", "id"]
-        "gh-end-to-end-nil": {
+        "gh-linker-nil": {
             "tables": "/home/gatoraid/alligator/datasets/gh/tables",
             "cea": "/home/gatoraid/alligator/datasets/gh/gt/cea_gt.csv",
             "cpa": "",
@@ -225,16 +224,7 @@ if __name__ == "__main__":
         "accept": "application/json",
         "Content-Type": "application/json",
     }
-
     params = (("token", "alligator_demo_2023"), ("kg", "wikidata"))
-    # params = (
-    #     ("token", "alligator_demo_2023"),
-    #     ("kgReference", "wikidata"),
-    #     ("columnTypes", None),
-    #     ("columnNERTypes", None),
-    #     ("columnDataTypes", None),
-    #     ("litTypes", None),
-    # )
 
     for dataset in datasets:
         tables_path, cea_target_path, cpa_target_path, cta_target_path = list(datasets[dataset].values())
@@ -250,7 +240,7 @@ if __name__ == "__main__":
             NE_cols,
             minimum_row_is_zero,
             separator=",",
-            include_ids=False,
+            include_ids=True,
             header="infer",
             columns_to_exclude=["idd", "id"],
         )

@@ -16,7 +16,7 @@ if __name__ == "__main__":
     )
     # parser.add_argument("--dataset_name", type=str, default="biodiv-cikm-2nd-turl-scratch")
     # parser.add_argument("--dataset_name", type=str, default="htr2-rn-from-scratch-turl-120k")
-    parser.add_argument("--dataset_name", type=str, default="gh-end-to-end-nil")
+    parser.add_argument("--dataset_name", type=str, default="gh-linker-nil")
     parser.add_argument(
         "--gt_path",
         type=str,
@@ -34,8 +34,12 @@ if __name__ == "__main__":
         action="store_true",
         help="Invert the row and column in the GT",
     )
+    parser.add_argument(
+        "--include_nil",
+        action="store_true",
+        help="Whether or not to include the NIL prediction in the results",
+    )
     args = parser.parse_args()
-    args.invert_row_col = False
     args.gt_path = os.path.expanduser(args.gt_path)
     args.output_path = os.path.expanduser(args.output_path)
     gt = pd.read_csv(args.gt_path, header=None)
@@ -45,14 +49,20 @@ if __name__ == "__main__":
     tables_names = gt["table_name"].unique().tolist()
     url_regex = re.compile(r"http(s)?\:\/\/www\.wikidata\.org\/(wiki|entity)\/")
     gt["qid"] = gt["qid"].map(lambda x: url_regex.sub("", x))
-    gt_mapping = {
-        f"{row.table_name}-{row.row}-{row.col}": {"target": row.qid}
-        for row in gt.itertuples()
-        if row.qid.startswith("Q")
-    }
-    gt_mapping_nil = {
-        f"{row.table_name}-{row.row}-{row.col}": {"target": row.qid} for row in gt.itertuples() if row.qid == "NIL"
-    }
+    if not args.include_nil:
+        gt_mapping = {
+            f"{row.table_name}-{row.row}-{row.col}": {"target": row.qid}
+            for row in gt.itertuples()
+            if row.qid.startswith("Q")
+        }
+        gt_mapping_nil = {
+            f"{row.table_name}-{row.row}-{row.col}": {"target": row.qid}
+            for row in gt.itertuples()
+            if row.qid.lower() == "nil"
+        }
+    else:
+        gt_mapping = {f"{row.table_name}-{row.row}-{row.col}": {"target": row.qid} for row in gt.itertuples()}
+        gt_mapping_nil = {}
     tp = 0
     all_gt = len(gt) - len(gt_mapping_nil)
     all_predicted = 0
@@ -91,7 +101,8 @@ if __name__ == "__main__":
     precision = tp / all_predicted
     recall = tp / all_gt
     f1 = 2 * (precision * recall) / (precision + recall)
-    print(all_gt, all_predicted)
+    print("Number of mentions to be linked:", all_gt)
+    print("Number of mentions linked:", all_predicted)
     print("Precision: {:.4f}".format(precision))
     print("Recall: {:.4f}".format(recall))
     print("F1: {:.4f}".format(f1))
