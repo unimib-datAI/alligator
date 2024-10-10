@@ -133,12 +133,12 @@ if __name__ == "__main__":
         # invert_rows_cols: False
         # include_ids: True
         # header: "infer"
-        # "turl-2k-rn-from-scratch-turl-120k-no-correct-qids": {
-        #     "tables": "/home/gatoraid/alligator/datasets/turl-2k/tables",
-        #     "cea": "/home/gatoraid/alligator/datasets/turl-2k/gt/cea.csv",
-        #     "cpa": "",
-        #     "cta": "",
-        # },
+        "turl-2k-baseline-qids": {
+            "tables": "/home/gatoraid/alligator/datasets/turl-2k/tables",
+            "cea": "/home/gatoraid/alligator/datasets/turl-2k/gt/cea.csv",
+            "cpa": "",
+            "cta": "",
+        },
         # Parameters:
         # gt separator: ","
         # tables separator: ","
@@ -157,19 +157,19 @@ if __name__ == "__main__":
         # invert_rows_cols: False
         # include_ids: True
         # header: "infer"
-        # "htr1-baseline-no-qids": {
+        # "htr1-baseline-qids": {
         #     "tables": "/home/gatoraid/alligator/datasets/hardtabler1/tables",
         #     "cea": "/home/gatoraid/alligator/datasets/hardtabler1/gt/cea_gt.csv",
         #     "cpa": "",
         #     "cta": "",
         # },
-        # "htr2-rn-from-scratch-turl-120k-correct-qids": {
+        # "htr2-baseline-qids": {
         #     "tables": "/home/gatoraid/alligator/datasets/hardtabler2/tables",
         #     "cea": "/home/gatoraid/alligator/datasets/hardtabler2/gt/cea_gt.csv",
         #     "cpa": "",
         #     "cta": "",
         # },
-        # "2t-baseline": {
+        # "2t-baseline-qids": {
         #     "tables": "/home/gatoraid/alligator/datasets/2t/tables",
         #     "cea": "/home/gatoraid/alligator/datasets/2t/gt/cea_gt.csv",
         #     "cpa": "",
@@ -213,12 +213,12 @@ if __name__ == "__main__":
         # include_ids: True
         # header: None
         # columns_to_exclude: ["idd", "id"]
-        "gh-end-to-end-nil": {
-            "tables": "/home/gatoraid/alligator/datasets/gh/tables",
-            "cea": "/home/gatoraid/alligator/datasets/gh/gt/cea_gt.csv",
-            "cpa": "",
-            "cta": "",
-        },
+        # "gh-linker-nil": {
+        #     "tables": "/home/gatoraid/alligator/datasets/gh/tables",
+        #     "cea": "/home/gatoraid/alligator/datasets/gh/gt/cea_gt.csv",
+        #     "cpa": "",
+        #     "cta": "",
+        # },
     }
 
     headers = {
@@ -249,10 +249,10 @@ if __name__ == "__main__":
             cell_to_entity,
             NE_cols,
             minimum_row_is_zero,
-            separator=",",
-            include_ids=False,
+            separator=";",
+            include_ids=True,
             header="infer",
-            columns_to_exclude=["idd", "id"],
+            # columns_to_exclude=["idd", "id"],
         )
         response = requests.post(
             "http://127.0.0.1:5042//dataset/createWithArray",

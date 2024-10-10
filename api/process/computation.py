@@ -3,7 +3,9 @@ import os
 import sys
 import time
 import traceback
+import tracemalloc
 
+import psutil
 import redis
 import utils.utils as utils
 from keras.models import load_model
@@ -18,6 +20,10 @@ from wrapper.lamAPI import LamAPI
 
 
 async def main():
+    proc = psutil.Process()
+    rss = proc.memory_info().rss  # Resident Set Size (in bytes)
+    vms = proc.memory_info().vms  # Virtual Memory Size (in bytes)
+    tracemalloc.start()
     start = time.time()
 
     pn_neural_path = "./process/ml_models/Linker_PN_100.h5"
@@ -101,9 +107,18 @@ async def main():
         storage.store_data()
         end = time.time()
         execution_time = round(end - start, 2)
+        mem_size, mem_peak = tracemalloc.get_traced_memory()
+        rss = proc.memory_info().rss - rss
+        vms = proc.memory_info().vms - vms
         obj_row_update["time"] = execution_time
+        obj_row_update["memory_size"] = mem_size
+        obj_row_update["memory_peak"] = mem_peak
+        obj_row_update["rss"] = rss
+        obj_row_update["vms"] = vms
         row_c.update_one({"_id": _id}, {"$set": obj_row_update})
         print("End", flush=True)
+        tracemalloc.reset_peak()
+        tracemalloc.stop()
     except Exception as e:
         log_c.insert_one(
             {

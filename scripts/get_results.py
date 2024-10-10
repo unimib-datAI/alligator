@@ -16,12 +16,12 @@ if __name__ == "__main__":
     )
     # parser.add_argument("--dataset_name", type=str, default="biodiv-cikm-2nd-turl-scratch")
     # parser.add_argument("--dataset_name", type=str, default="htr2-rn-from-scratch-turl-120k")
-    parser.add_argument("--dataset_name", type=str, default="gh-end-to-end-nil")
+    parser.add_argument("--dataset_name", type=str, default="htr2-baseline-qids")
     parser.add_argument(
         "--gt_path",
         type=str,
         help="Path to the ground truth",
-        default="/home/gatoraid/alligator/datasets/gh/gt/cea_gt.csv",  # "/home/gatoraid/alligator/datasets/biodiv/gt/cea_gt.csv",
+        default="/home/gatoraid/alligator/datasets/hardtabler2/gt/cea_gt.csv",  # "/home/gatoraid/alligator/datasets/biodiv/gt/cea_gt.csv",
     )
     parser.add_argument(
         "--output_path",

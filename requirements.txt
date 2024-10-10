@@ -14,3 +14,4 @@ tensorflow==2.16.1
 aiohttp==3.9.3
 aiohttp_retry==2.8.3
 rdflib==7.0.0
+psutil==6.0.0
