@@ -72,6 +72,40 @@ def validate_token(token):
     return token == API_TOKEN
 
 
+# Define all the features that will be used in the prediction
+all_features = {
+    "ambiguity_mention",
+    "ncorrects_tokens",
+    "ntoken_mention",
+    "ntoken_entity",
+    "length_mention",
+    "length_entity",
+    "popularity",
+    "pos_score",
+    "es_score",
+    "ed_score",
+    "jaccard_score",
+    "jaccardNgram_score",
+    "p_subj_ne",
+    "p_subj_lit_datatype",
+    "p_subj_lit_all_datatype",
+    "p_subj_lit_row",
+    "p_obj_ne",
+    "desc",
+    "descNgram",
+    "cta_t1",
+    "cta_t2",
+    "cta_t3",
+    "cta_t4",
+    "cta_t5",
+    "cpa_t1",
+    "cpa_t2",
+    "cpa_t3",
+    "cpa_t4",
+    "cpa_t5",
+}
+
+
 # Define data models for the API to serialize and deserialize data
 rows_fields = api.model("Rows", {"idRow": fields.Integer, "data": fields.List(fields.String)})
 
@@ -650,13 +684,18 @@ class TableID(Resource):
                                 "description": candidate["description"],
                                 "match": candidate["match"],
                                 "score": candidate.get("rho'"),
+                                # "features": [
+                                # {"id": "delta", "value": candidate.get("delta")},
+                                # {"id": "omega", "value": candidate.get("score")},
+                                # {"id": "levenshtein_distance", "value": candidate["features"].get("ed_score")},
+                                # {"id": "jaccard_distance", "value": candidate["features"].get("jaccard_score")},
+                                # {"id": "popularity", "value": candidate["features"].get("popularity")},
+                                # ],
                                 "features": [
                                     {"id": "delta", "value": candidate.get("delta")},
                                     {"id": "omega", "value": candidate.get("score")},
-                                    {"id": "levenshtein_distance", "value": candidate["features"].get("ed_score")},
-                                    {"id": "jaccard_distance", "value": candidate["features"].get("jaccard_score")},
-                                    {"id": "popularity", "value": candidate["features"].get("popularity")},
-                                ],
+                                ]
+                                + [{"id": k, "value": candidate["features"].get(k)} for k in all_features],
                             }
                         )
                     out["semanticAnnotations"]["cea"].append(
