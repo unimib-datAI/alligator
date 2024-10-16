@@ -111,10 +111,10 @@ class LamAPI:
 
         return freq_data
 
-    async def column_analysis(self, columns: List[List[str]]) -> List[List[str]]:
+    async def column_analysis(self, columns: List[List[str]], model_type: str = "fast") -> List[List[str]]:
         # The input is a list of lists, where every list is a column in the table
         json_data = {"json": [columns]}
-        params = {"token": self.client_key}
+        params = {"token": self.client_key, model_type: model_type}
 
         # The resutls are a list of dictionaries, where:
         # Every dictionary has a key in the form `table_idx`, where `idx` ranges in the number of tables processed
