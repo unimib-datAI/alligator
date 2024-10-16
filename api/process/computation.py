@@ -5,10 +5,11 @@ import time
 import traceback
 import tracemalloc
 
-import psutils
+import psutil
 import redis
-import utils.utils as utils
 from keras.models import load_model
+
+import utils.utils as utils
 from phases.data_preparation import DataPreparation
 from phases.decision import Decision
 from phases.featuresExtraction import FeauturesExtraction
@@ -81,11 +82,19 @@ async def main():
             column_metadata[str(target["SUBJ"])] = "SUBJ"
         obj_row_update["column"] = column_metadata
         obj_row_update["metadata"] = {
-            "column": [{"idColumn": int(id_col), "tag": column_metadata[id_col]} for id_col in column_metadata]
+            "column": [
+                {"idColumn": int(id_col), "tag": column_metadata[id_col]}
+                for id_col in column_metadata
+            ]
         }
         obj_row_update["target"] = target
 
-        metadata = {"datasetName": dataset_name, "tableName": table_name, "kgReference": kg_reference, "page": page}
+        metadata = {
+            "datasetName": dataset_name,
+            "tableName": table_name,
+            "kgReference": kg_reference,
+            "page": page,
+        }
 
         collections = {
             "ceaPrelinking": cea_prelinking_c,
@@ -104,7 +113,14 @@ async def main():
         revision = FeaturesExtractionRevision(rows)
         features = revision.compute_features()
         Prediction(rows, features, rn_model).compute_prediction("rho'")
-        storage = Decision(metadata, cea_preliking_data, rows, revision._cta, revision._cpa_pair, collections)
+        storage = Decision(
+            metadata,
+            cea_preliking_data,
+            rows,
+            revision._cta,
+            revision._cpa_pair,
+            collections,
+        )
         storage.store_data()
         end = time.perf_counter()
         execution_time = round(end - start, 2)
