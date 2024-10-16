@@ -3,7 +3,9 @@ import os
 import sys
 import time
 import traceback
+import tracemalloc
 
+import psutils
 import redis
 import utils.utils as utils
 from keras.models import load_model
@@ -18,7 +20,11 @@ from wrapper.lamAPI import LamAPI
 
 
 async def main():
-    start = time.time()
+    proc = psutil.Process()
+    rss = proc.memory_info().rss  # Resident Set Size (in bytes)
+    vms = proc.memory_info().vms  # Virtual Memory Size (in bytes)
+    tracemalloc.start()
+    start = time.perf_counter()
 
     pn_neural_path = "./process/ml_models/Linker_PN_100.h5"
     rn_neural_path = "./process/ml_models/Linker_RN_100.h5"
@@ -100,8 +106,16 @@ async def main():
         Prediction(rows, features, rn_model).compute_prediction("rho'")
         storage = Decision(metadata, cea_preliking_data, rows, revision._cta, revision._cpa_pair, collections)
         storage.store_data()
-        end = time.time()
+        end = time.perf_counter()
         execution_time = round(end - start, 2)
+        mem_size, mem_peak = tracemalloc.get_traced_memory()
+        rss = proc.memory_info().rss - rss
+        vms = proc.memory_info().vms - vms
+        obj_row_update["time"] = execution_time
+        obj_row_update["memory_size"] = mem_size
+        obj_row_update["memory_peak"] = mem_peak
+        obj_row_update["rss"] = rss
+        obj_row_update["vms"] = vms
         obj_row_update["time"] = execution_time
         row_c.update_one({"_id": _id}, {"$set": obj_row_update})
         print("End", flush=True)
