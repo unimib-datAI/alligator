@@ -30,7 +30,9 @@ def cea_process(
     cea_gt.iloc[:, -1] = cea_gt.iloc[:, -1].apply(lambda x: url_regex.sub("", x))
     cea_gt[1] = cea_gt[1].astype(int)
     cea_gt[2] = cea_gt[2].astype(int)
-    NE_cols = set()  # to store couple of (id_table, id_col) for tracing NE cols to be annotated!
+    NE_cols = (
+        set()
+    )  # to store couple of (id_table, id_col) for tracing NE cols to be annotated!
     cell_to_entity = {}
     if invert_rows_cols:
         cea_gt_np = cea_gt.to_numpy()
@@ -75,7 +77,9 @@ def generate_api_format(
         if table.startswith("."):
             continue
         try:
-            df = pd.read_csv(f"{tables_path}/{table}", sep=separator, header=header)  # Change delimiter if different
+            df = pd.read_csv(
+                f"{tables_path}/{table}", sep=separator, header=header
+            )  # Change delimiter if different
             df = df.drop(columns=columns_to_exclude)
             if header is None:
                 df.columns = ["col" + str(i) for i in range(len(df.columns))]
@@ -97,7 +101,13 @@ def generate_api_format(
             "rows": [],
             "semanticAnnotations": {},
             "metadata": {"column": []},
-            "lamapi_kwargs": {"kg": "wikidata", "limit": 50, "kind": "entity", "language": "en", "cache": False},
+            "lamapi_kwargs": {
+                "kg": "wikidata",
+                "limit": 50,
+                "kind": "entity",
+                "language": "en",
+                "cache": False,
+            },
         }
         rows = json_data["data"]
         id_row = 1
@@ -108,7 +118,10 @@ def generate_api_format(
                 {
                     "idRow": id_row,
                     "data": [str(cell) for cell in row],
-                    "ids": [str(cell_to_entity.get(f"{name} {id_row} {id_col}", "")) for id_col, _ in enumerate(row)],
+                    "ids": [
+                        str(cell_to_entity.get(f"{name} {id_row} {id_col}", ""))
+                        for id_col, _ in enumerate(row)
+                    ],
                 }
                 if include_ids
                 else {"idRow": id_row, "data": [str(cell) for cell in row]}
@@ -213,8 +226,8 @@ if __name__ == "__main__":
         # header: infer
         # columns_to_exclude: ["idd", "id"]
         "gh-linker-nil": {
-            "tables": "/home/gatoraid/alligator/datasets/gh/tables",
-            "cea": "/home/gatoraid/alligator/datasets/gh/gt/cea_gt.csv",
+            "tables": "/home/belerico/projects/alligator/datasets/gh/tables",
+            "cea": "/home/belerico/projects/alligator/datasets/gh/gt/cea_gt.csv",
             "cpa": "",
             "cta": "",
         },
@@ -227,7 +240,9 @@ if __name__ == "__main__":
     params = (("token", "alligator_demo_2023"), ("kg", "wikidata"))
 
     for dataset in datasets:
-        tables_path, cea_target_path, cpa_target_path, cta_target_path = list(datasets[dataset].values())
+        tables_path, cea_target_path, cpa_target_path, cta_target_path = list(
+            datasets[dataset].values()
+        )
         cell_to_entity, NE_cols, minimum_row_is_zero = cea_process(
             cea_target_path,
             separator=",",

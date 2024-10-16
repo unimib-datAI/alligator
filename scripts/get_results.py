@@ -7,7 +7,9 @@ import requests
 import tqdm
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Get the results of the annotations from Alligator")
+    parser = argparse.ArgumentParser(
+        description="Get the results of the annotations from Alligator"
+    )
     parser.add_argument(
         "--endpoint",
         type=str,
@@ -21,7 +23,7 @@ if __name__ == "__main__":
         "--gt_path",
         type=str,
         help="Path to the ground truth",
-        default="/home/gatoraid/alligator/datasets/gh/gt/cea_gt.csv",  # "/home/gatoraid/alligator/datasets/biodiv/gt/cea_gt.csv",
+        default="/home/belerico/projects/alligator/datasets/gh/gt/cea_gt.csv",  # "/home/gatoraid/alligator/datasets/biodiv/gt/cea_gt.csv",
     )
     parser.add_argument(
         "--output_path",
@@ -61,7 +63,10 @@ if __name__ == "__main__":
             if row.qid.lower() == "nil"
         }
     else:
-        gt_mapping = {f"{row.table_name}-{row.row}-{row.col}": {"target": row.qid} for row in gt.itertuples()}
+        gt_mapping = {
+            f"{row.table_name}-{row.row}-{row.col}": {"target": row.qid}
+            for row in gt.itertuples()
+        }
         gt_mapping_nil = {}
     tp = 0
     all_gt = len(gt) - len(gt_mapping_nil)
@@ -83,11 +88,15 @@ if __name__ == "__main__":
             )
             if response:
                 alligator_annotations = response.json()
-                alligator_annotations = alligator_annotations["semanticAnnotations"]["cea"]
+                alligator_annotations = alligator_annotations["semanticAnnotations"][
+                    "cea"
+                ]
             else:
                 alligator_annotations = []
             for annotation in alligator_annotations:
-                key = "{}-{}-{}".format(current_table_name, annotation["idRow"], annotation["idColumn"])
+                key = "{}-{}-{}".format(
+                    current_table_name, annotation["idRow"], annotation["idColumn"]
+                )
                 # if key in gt_mapping_nil:
                 #     continue
                 if key not in gt_mapping:

@@ -35,7 +35,9 @@ class Lookup:
         for row in results:
             self._rows.append(row)
 
-    async def _build_row(self, cells, id_row, ids=None, lamapi_kwargs={"kg": "wikidata", "limit": 50}):
+    async def _build_row(
+        self, cells, id_row, ids=None, lamapi_kwargs={"kg": "wikidata", "limit": 50}
+    ):
         row = Row(id_row, len(cells))
         cells_as_strings = [str(cell) for cell in cells]
         row_text = " ".join(cells_as_strings)
@@ -47,7 +49,9 @@ class Lookup:
                 if cell in self._cache:
                     candidates = self._cache.get(cell, [])
                 else:
-                    candidates = await self._get_candidates(cell, id_row, types, qid, lamapi_kwargs=lamapi_kwargs)
+                    candidates = await self._get_candidates(
+                        cell, id_row, types, qid, lamapi_kwargs=lamapi_kwargs
+                    )
                     self._cache[cell] = candidates
                 is_subject = i == self._target["SUBJ"]
                 row.add_ne_cell(cell, row_text, candidates, i, is_subject, qid=qid)
@@ -57,10 +61,19 @@ class Lookup:
                 row.add_notag_cell(cell, i)
         return row
 
-    async def _get_candidates(self, cell, id_row, types, qid=None, lamapi_kwargs={"kg": "wikidata", "limit": 50}):
+    async def _get_candidates(
+        self,
+        cell,
+        id_row,
+        types,
+        qid=None,
+        lamapi_kwargs={"kg": "wikidata", "limit": 50},
+    ):
         candidates = []
         try:
-            candidates = await self._lamAPI.lookup(cell, ids=qid, lamapi_kwargs=lamapi_kwargs)
+            candidates = await self._lamAPI.lookup(
+                cell, ids=qid, lamapi_kwargs=lamapi_kwargs
+            )
         except Exception as e:
             self._log_c.insert_one(
                 {

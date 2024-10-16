@@ -41,12 +41,19 @@ while True:
                             "tableName": "$_id.tableName",
                             "idJob": "$_id.idJob",
                         },
-                        "term_tf": {"$push": {"status": "$_id.status", "count": "$count"}},
+                        "term_tf": {
+                            "$push": {"status": "$_id.status", "count": "$count"}
+                        },
                     }
                 },
                 {
                     "$project": {
-                        "items": {"$map": {"input": "$term_tf", "in": {"k": "$$this.status", "v": "$$this.count"}}}
+                        "items": {
+                            "$map": {
+                                "input": "$term_tf",
+                                "in": {"k": "$$this.status", "v": "$$this.count"},
+                            }
+                        }
                     }
                 },
                 {"$project": {"status": {"$arrayToObject": "$items"}}},
@@ -59,7 +66,9 @@ while True:
             table_name = row["_id"]["tableName"]
             id_job = row["_id"]["idJob"]
             status = row["status"]
-            TODO, DOING, DONE = [status.get(key, 0) for key in ["TODO", "DOING", "DONE"]]
+            TODO, DOING, DONE = [
+                status.get(key, 0) for key in ["TODO", "DOING", "DONE"]
+            ]
             if TODO > 0:
                 status = "TODO"
             elif DOING > 0:
@@ -92,7 +101,10 @@ while True:
 
             elapsed_time = round(time.time() - job["startTime"], 2)
 
-            TODO, DOING, DONE = [ids_job_to_update[id_job].get(key, 0) for key in ["TODO", "DOING", "DONE"]]
+            TODO, DOING, DONE = [
+                ids_job_to_update[id_job].get(key, 0)
+                for key in ["TODO", "DOING", "DONE"]
+            ]
             percent = round(DONE / (TODO + DOING + DONE), 2)
             missing_table = TODO + DOING
             start_time_compuation = None
@@ -104,7 +116,11 @@ while True:
             elif job["startTimeComputation"] is not None:
                 start_time_compuation = job["startTimeComputation"]
                 elapsed_time_computation = round(time.time() - start_time_compuation, 2)
-                estimated_time = round(missing_table * elapsed_time_computation / DONE, 2) if DONE > 0 else None
+                estimated_time = (
+                    round(missing_table * elapsed_time_computation / DONE, 2)
+                    if DONE > 0
+                    else None
+                )
 
             tables = table_c.aggregate(
                 [
@@ -112,13 +128,17 @@ while True:
                     {
                         "$group": {
                             "_id": "$status",  # Group by the status field
-                            "count": {"$sum": 1},  # Count the number of documents in each group
+                            "count": {
+                                "$sum": 1
+                            },  # Count the number of documents in each group
                         }
                     },
                 ]
             )
             status = {result["_id"]: result["count"] for result in tables}
-            TODO, DOING, DONE = [status.get(key, 0) for key in ["TODO", "DOING", "DONE"]]
+            TODO, DOING, DONE = [
+                status.get(key, 0) for key in ["TODO", "DOING", "DONE"]
+            ]
             job_c.update_one(
                 {"_id": id_job},
                 {
@@ -143,19 +163,39 @@ while True:
             dataset_name = dataset["datasetName"]
             tables = table_c.aggregate(
                 [
-                    {"$match": {"datasetName": dataset_name}},  # Filter documents by datasetName
+                    {
+                        "$match": {"datasetName": dataset_name}
+                    },  # Filter documents by datasetName
                     {
                         "$group": {
                             "_id": "$status",  # Group by the status field
-                            "count": {"$sum": 1},  # Count the number of documents in each group
+                            "count": {
+                                "$sum": 1
+                            },  # Count the number of documents in each group
                         }
                     },
                 ]
             )
             status = {result["_id"]: result["count"] for result in tables}
-            TODO, DOING, DONE = [status.get(key, 0) for key in ["TODO", "DOING", "DONE"]]
-            print("dataset", dataset_name, "TODO", TODO, "DOING", DOING, "DONE", DONE, flush=True)
-            percent = round(DONE / (TODO + DOING + DONE), 2) if TODO + DOING + DONE > 0 else None
+            TODO, DOING, DONE = [
+                status.get(key, 0) for key in ["TODO", "DOING", "DONE"]
+            ]
+            print(
+                "dataset",
+                dataset_name,
+                "TODO",
+                TODO,
+                "DOING",
+                DOING,
+                "DONE",
+                DONE,
+                flush=True,
+            )
+            percent = (
+                round(DONE / (TODO + DOING + DONE), 2)
+                if TODO + DOING + DONE > 0
+                else None
+            )
             process = "DOING" if TODO + DOING > 0 else "DONE"
             dataset_c.update_one(
                 {"datasetName": dataset_name},

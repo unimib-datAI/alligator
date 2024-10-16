@@ -49,13 +49,18 @@ class LamAPI:
 
     async def __submit_get(self, url, params):
         try:
-            retry_options = ExponentialRetry(attempts=3, start_timeout=3, max_timeout=10)
+            retry_options = ExponentialRetry(
+                attempts=3, start_timeout=3, max_timeout=10
+            )
             timeout = aiohttp.ClientTimeout(total=1000)  # Adjusted timeout
             async with self.semaphore:
                 async with RetryClient(
-                    connector=aiohttp.TCPConnector(ssl=False), retry_options=retry_options
+                    connector=aiohttp.TCPConnector(ssl=False),
+                    retry_options=retry_options,
                 ) as session:
-                    async with session.get(url, headers=headers, params=params, timeout=timeout) as response:
+                    async with session.get(
+                        url, headers=headers, params=params, timeout=timeout
+                    ) as response:
                         return await self.__to_format(response)
         except Exception as e:
             self.__log_error("GET", url, params, str(e))
@@ -63,14 +68,21 @@ class LamAPI:
 
     async def __submit_post(self, url, params, json_data):
         try:
-            retry_options = ExponentialRetry(attempts=3, start_timeout=3, max_timeout=10)
+            retry_options = ExponentialRetry(
+                attempts=3, start_timeout=3, max_timeout=10
+            )
             timeout = aiohttp.ClientTimeout(total=1000)  # Adjusted timeout
             async with self.semaphore:
                 async with RetryClient(
-                    connector=aiohttp.TCPConnector(ssl=False), retry_options=retry_options
+                    connector=aiohttp.TCPConnector(ssl=False),
+                    retry_options=retry_options,
                 ) as session:
                     async with session.post(
-                        url, headers=headers, params=params, json=json_data, timeout=timeout
+                        url,
+                        headers=headers,
+                        params=params,
+                        json=json_data,
+                        timeout=timeout,
                     ) as response:
                         return await self.__to_format(response)
         except Exception as e:
@@ -97,11 +109,16 @@ class LamAPI:
     async def literal_recognizer(self, column):
         json_data = {"json": column}
         params = {"token": self.client_key}
-        result = await self.__submit_post(self._url.literal_recognizer_url(), params, json_data)
+        result = await self.__submit_post(
+            self._url.literal_recognizer_url(), params, json_data
+        )
         freq_data = {}
         for cell in result:
             item = result[cell]
-            if item["datatype"] == "STRING" and item["datatype"] == item["classification"]:
+            if (
+                item["datatype"] == "STRING"
+                and item["datatype"] == item["classification"]
+            ):
                 datatype = "ENTITY"
             else:
                 datatype = item["classification"]
@@ -111,7 +128,9 @@ class LamAPI:
 
         return freq_data
 
-    async def column_analysis(self, columns: List[List[str]], model_type: str = "fast") -> List[List[str]]:
+    async def column_analysis(
+        self, columns: List[List[str]], model_type: str = "fast"
+    ) -> List[List[str]]:
         # The input is a list of lists, where every list is a column in the table
         json_data = {"json": [columns]}
         params = {"token": self.client_key, model_type: model_type}
@@ -139,24 +158,34 @@ class LamAPI:
     async def objects(self, entities):
         params = {"token": self.client_key, "kg": self.kg}
         json_data = {"json": entities}
-        return await self.__submit_post(self._url.entities_objects_url(), params, json_data)
+        return await self.__submit_post(
+            self._url.entities_objects_url(), params, json_data
+        )
 
     async def predicates(self, entities):
         params = {"token": self.client_key, "kg": self.kg}
         json_data = {"json": entities}
-        return await self.__submit_post(self._url.entities_predicates_url(), params, json_data)
+        return await self.__submit_post(
+            self._url.entities_predicates_url(), params, json_data
+        )
 
     async def types(self, entities):
         params = {"token": self.client_key, "kg": self.kg}
         json_data = {"json": entities}
-        return await self.__submit_post(self._url.entities_types_url(), params, json_data)
+        return await self.__submit_post(
+            self._url.entities_types_url(), params, json_data
+        )
 
     async def literals(self, entities):
         params = {"token": self.client_key, "kg": self.kg}
         json_data = {"json": entities}
-        return await self.__submit_post(self._url.entities_literals_url(), params, json_data)
+        return await self.__submit_post(
+            self._url.entities_literals_url(), params, json_data
+        )
 
-    async def lookup(self, string, ids=None, lamapi_kwargs={"kg": "wikidata", "limit": 50}):
+    async def lookup(
+        self, string, ids=None, lamapi_kwargs={"kg": "wikidata", "limit": 50}
+    ):
         # Convert boolean values to strings
         if isinstance(ids, list):
             ids_str = " ".join(ids)

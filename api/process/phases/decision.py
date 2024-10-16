@@ -4,7 +4,9 @@ SIGMA = 0.3
 
 
 class Decision:
-    def __init__(self, metadata: dict, cea_prelinking_data, rows, cta, cpa, collections: dict):
+    def __init__(
+        self, metadata: dict, cea_prelinking_data, rows, cta, cpa, collections: dict
+    ):
         self._rows = rows
         self._cta = cta
         self._cpa = cpa
@@ -55,10 +57,14 @@ class Decision:
                             rank.append(candidates[correct_cand_idx])
                 if len(candidates) > 0:
                     if len(candidates) > 1:
-                        candidates[0]["delta"] = round(candidates[0]["rho'"] - candidates[1]["rho'"], 3)
+                        candidates[0]["delta"] = round(
+                            candidates[0]["rho'"] - candidates[1]["rho'"], 3
+                        )
                     else:
                         candidates[0]["delta"] = 1
-                    candidates[0]["score"] = round((1 - K) * candidates[0]["rho'"] + K * candidates[0]["delta"], 3)
+                    candidates[0]["score"] = round(
+                        (1 - K) * candidates[0]["rho'"] + K * candidates[0]["delta"], 3
+                    )
                     wc.append(candidates[0])
 
                 if len(wc) == 1:
@@ -121,7 +127,11 @@ class Decision:
         for id_col in self._cpa:
             cpa[id_col] = {}
             for id_col_rel in self._cpa[id_col]:
-                id_predicate = max(self._cpa[id_col][id_col_rel], key=self._cpa[id_col][id_col_rel].get, default=None)
+                id_predicate = max(
+                    self._cpa[id_col][id_col_rel],
+                    key=self._cpa[id_col][id_col_rel].get,
+                    default=None,
+                )
                 if id_predicate is not None:
                     cpa[id_col][id_col_rel] = id_predicate
 
@@ -129,7 +139,9 @@ class Decision:
             "datasetName": self._dataset_name,
             "tableName": self._table_name,
             "subjectCol": (
-                self._rows[0].get_subject_cell()._id_col if self._rows[0].get_subject_cell() is not None else 0
+                self._rows[0].get_subject_cell()._id_col
+                if self._rows[0].get_subject_cell() is not None
+                else 0
             ),
             "winningCandidates": self._cpa,
             "cpa": cpa,

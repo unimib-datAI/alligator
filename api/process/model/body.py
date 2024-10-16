@@ -6,7 +6,9 @@ body = {
             "must": [{"range": {"ntoken": {"gte": "", "lte": ""}}}],
         }
     },
-    "fuzzy": {"bool": {"should": [{"match": {"name": {"query": "", "fuzziness": "auto"}}}]}},
+    "fuzzy": {
+        "bool": {"should": [{"match": {"name": {"query": "", "fuzziness": "auto"}}}]}
+    },
     "ngrams": {
         "bool": {
             "should": [
@@ -40,7 +42,10 @@ body = {
                 {"match": {"name.ngrams": {"query": ""}}},
                 {"match": {"name": {"query": "", "fuzziness": "auto"}}},
             ],
-            "must": [{"range": {"ntoken": {"gte": "", "lte": ""}}}, {"range": {"length": {"gte": "", "lte": ""}}}],
+            "must": [
+                {"range": {"ntoken": {"gte": "", "lte": ""}}},
+                {"range": {"length": {"gte": "", "lte": ""}}},
+            ],
         }
     },
     "token+type": {
@@ -49,16 +54,32 @@ body = {
                 {"match": {"name": {"query": "", "boost": 2}}},
                 {"match": {"type": {"query": ""}}},
             ],
-            "must": [{"range": {"ntoken": {"gte": "", "lte": ""}}}, {"range": {"length": {"gte": "", "lte": ""}}}],
+            "must": [
+                {"range": {"ntoken": {"gte": "", "lte": ""}}},
+                {"range": {"length": {"gte": "", "lte": ""}}},
+            ],
         }
     },
     "fuzzy+type": {
         "bool": {
-            "should": [{"match": {"name": {"query": "", "fuzziness": "auto"}}}, {"match": {"type": ""}}],
-            "must": [{"range": {"ntoken": {"gte": "", "lte": ""}}}, {"range": {"length": {"gte": "", "lte": ""}}}],
+            "should": [
+                {"match": {"name": {"query": "", "fuzziness": "auto"}}},
+                {"match": {"type": ""}},
+            ],
+            "must": [
+                {"range": {"ntoken": {"gte": "", "lte": ""}}},
+                {"range": {"length": {"gte": "", "lte": ""}}},
+            ],
         }
     },
-    "ngrams+type": {"bool": {"should": [{"match": {"name.ngrams": {"query": ""}}}, {"match": {"type": ""}}]}},
+    "ngrams+type": {
+        "bool": {
+            "should": [
+                {"match": {"name.ngrams": {"query": ""}}},
+                {"match": {"type": ""}},
+            ]
+        }
+    },
     "token+fuzzy+type": {
         "bool": {
             "should": [

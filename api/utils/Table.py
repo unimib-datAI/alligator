@@ -32,7 +32,10 @@ class TableModel:
             column_types = entry.get("semanticAnnotations", {}).get("cta", {})
             entry["column"] = {str(c["idColumn"]): c["tag"] for c in column_metadata}
             entry["target"] = {"SUBJ": None, "NE": [], "LIT": [], "LIT_DATATYPE": {}}
-            entry["types"] = {str(c["idColumn"]): " ".join(sorted(c["types"], reverse=True)) for c in column_types}
+            entry["types"] = {
+                str(c["idColumn"]): " ".join(sorted(c["types"], reverse=True))
+                for c in column_types
+            }
 
             for id_col, column in enumerate(column_metadata):
                 if column["tag"] == "SUBJ":
@@ -42,7 +45,9 @@ class TableModel:
                     entry["target"]["NE"].append(column["idColumn"])
                 elif column["tag"] == "LIT":
                     entry["target"]["LIT"].append(column["idColumn"])
-                    entry["target"]["LIT_DATATYPE"][str(column["idColumn"])] = column["datatype"]
+                    entry["target"]["LIT_DATATYPE"][str(column["idColumn"])] = column[
+                        "datatype"
+                    ]
 
             entry["page"] = 1
             entry["status"] = "TODO"
@@ -52,7 +57,10 @@ class TableModel:
 
             # Split rows into chunks of CHUNCK_SIZE and create new table entries for each chunk
             if len(rows) >= TableModel.CHUNCK_SIZE * 2:
-                chunks = [rows[i : i + TableModel.CHUNCK_SIZE] for i in range(0, len(rows), TableModel.CHUNCK_SIZE)]
+                chunks = [
+                    rows[i : i + TableModel.CHUNCK_SIZE]
+                    for i in range(0, len(rows), TableModel.CHUNCK_SIZE)
+                ]
 
                 # If the last chunk is smaller than MIN_ROWS, combine it with the previous chunk
                 if len(chunks[-1]) < TableModel.CHUNCK_SIZE:
@@ -96,7 +104,10 @@ class TableModel:
         num_rows = len(df)
         if num_rows >= TableModel.SPLIT_THRESHOLD:
             offset = 1
-            chunks = [df.iloc[i : i + TableModel.CHUNCK_SIZE] for i in range(0, num_rows, TableModel.CHUNCK_SIZE)]
+            chunks = [
+                df.iloc[i : i + TableModel.CHUNCK_SIZE]
+                for i in range(0, num_rows, TableModel.CHUNCK_SIZE)
+            ]
             # If the last chunk is smaller than MIN_ROWS, combine it with the previous chunk
             if len(chunks[-1]) < TableModel.CHUNCK_SIZE:
                 chunks[-2] = pd.concat([chunks[-2], chunks[-1]])
@@ -105,14 +116,16 @@ class TableModel:
             for page, chunk_df in enumerate(chunks):
                 new_entry = table_obj.copy()
                 new_entry["rows"] = [
-                    {"idRow": idx + offset, "data": row_data} for idx, row_data in enumerate(chunk_df.values.tolist())
+                    {"idRow": idx + offset, "data": row_data}
+                    for idx, row_data in enumerate(chunk_df.values.tolist())
                 ]
                 new_entry["page"] = page + 1
                 self.data.append(new_entry)
                 offset = new_entry["rows"][-1]["idRow"] + 1
         else:
             table_obj["rows"] = [
-                {"idRow": idx + 1, "data": row_data} for idx, row_data in enumerate(df.values.tolist())
+                {"idRow": idx + 1, "data": row_data}
+                for idx, row_data in enumerate(df.values.tolist())
             ]
             self.data.append(table_obj)
 
@@ -147,7 +160,11 @@ class TableModel:
             result = self._db.get_collection("job").insert_one(
                 {
                     "name": dataset_name,
-                    "status": {"TODO": len(self.table_metadata[dataset_name]), "DOING": 0, "DONE": 0},
+                    "status": {
+                        "TODO": len(self.table_metadata[dataset_name]),
+                        "DOING": 0,
+                        "DONE": 0,
+                    },
                     "startTime": time.time(),
                     "startTimeComputation": None,
                     "elapsedTime": 0,
@@ -162,7 +179,9 @@ class TableModel:
 
             for table_name in self.table_metadata[dataset_name]:
                 metadata = self.table_metadata[dataset_name][table_name]
-                total_tables = self._db.get_collection("table").count_documents({"datasetName": dataset_name})
+                total_tables = self._db.get_collection("table").count_documents(
+                    {"datasetName": dataset_name}
+                )
                 page = math.floor(total_tables / TableModel.TABLE_FOR_PAGE) + 1
                 metadata["page"] = page
                 if Nrows is not None:
