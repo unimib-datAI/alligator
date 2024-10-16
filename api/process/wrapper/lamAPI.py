@@ -1,7 +1,7 @@
 import asyncio
-import json
 import os
 import traceback
+from typing import List, Dict
 
 import aiohttp
 from aiohttp_retry import ExponentialRetry, RetryClient
@@ -111,10 +111,25 @@ class LamAPI:
 
         return freq_data
 
-    async def column_analysis(self, columns):
-        json_data = {"json": columns}
+    async def column_analysis(self, columns: List[List[str]]) -> List[List[str]]:
+        # The input is a list of lists, where every list is a column in the table
+        json_data = {"json": [columns]}
         params = {"token": self.client_key}
-        return await self.__submit_post(self._url.column_analysis_url(), params, json_data)
+
+        # The resutls are a list of dictionaries, where:
+        # Every dictionary has a key in the form `table_idx`, where `idx` ranges in the number of tables processed
+        # For every `table_idx`, the value is a dictionary with the following keys:
+        # - `column_idx`: The index of the column in the table, with the following keys:
+        #   - `index_column`: The datatype of the column
+        #   - `tag`: The tag assigned to the column (LIT/NE)
+        #   - `datatype`: The datatype of the column
+        #   - `classification`: The classification of the column
+        #   - `probabilities`: a dictionary containing the probabilities of every datatype returned
+        response: List[Dict[str, Dict[str, Dict[str, str]]]] = await self.__submit_post(
+            self._url.column_analysis_url(), params, json_data
+        )
+        assert len(response) == 1, "The response should contain only one table"
+        return response[0]["table_1"]
 
     async def labels(self, entities):
         params = {"token": self.client_key, "kg": self.kg}
@@ -162,5 +177,4 @@ class LamAPI:
             if isinstance(v, bool):
                 params[k] = str(v).lower()
 
-        result = await self.__submit_get(self._url.lookup_url(), params)
-        return result
+        return await self.__submit_get(self._url.lookup_url(), params)
