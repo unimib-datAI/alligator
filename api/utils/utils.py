@@ -18,7 +18,10 @@ MONGO_ENDPOINT, MONGO_ENDPOINT_PORT = os.environ["MONGO_ENDPOINT"].split(":")
 MONGO_ENDPOINT_USERNAME = os.environ["MONGO_INITDB_ROOT_USERNAME"]
 MONGO_ENDPOINT_PASSWORD = os.environ["MONGO_INITDB_ROOT_PASSWORD"]
 client = MongoClient(
-    MONGO_ENDPOINT, int(MONGO_ENDPOINT_PORT), username=MONGO_ENDPOINT_USERNAME, password=MONGO_ENDPOINT_PASSWORD
+    MONGO_ENDPOINT,
+    int(MONGO_ENDPOINT_PORT),
+    username=MONGO_ENDPOINT_USERNAME,
+    password=MONGO_ENDPOINT_PASSWORD,
 )
 cea_c = client[DBNAME].cea
 cea_c = client[DBNAME].ceaPrelinking
@@ -29,7 +32,9 @@ cta_c = client[DBNAME].cta
 
 
 def get_candidate_scored(dataset_name, table_name, id_row):
-    return candidate_scored_c.find_one({"datasetName": dataset_name, "tableName": table_name, "row": id_row})
+    return candidate_scored_c.find_one(
+        {"datasetName": dataset_name, "tableName": table_name, "row": id_row}
+    )
 
 
 def get_cea_ann(cea_gt_path):
@@ -169,7 +174,9 @@ def get_my_cta_annotation(id_dataset):
     for id_table in tqdm(results):
         for id_col in results[id_table]:
             key = f"{id_table} {id_col}"
-            winning_types = sorted(results[id_table][id_col].items(), key=lambda x: x[1], reverse=True)
+            winning_types = sorted(
+                results[id_table][id_col].items(), key=lambda x: x[1], reverse=True
+            )
             if len(winning_types) > 0:
                 winning_type = winning_types[0][0]
                 if results[id_table][id_col].get("Q5", 0) > 0.80:
@@ -308,7 +315,11 @@ def cta_eval(id_dataset, cta_gt_path, gt_ancestor_path, gt_descendent_path):
         total_score += max_score
     precision = total_score / total_my_ann if total_my_ann > 0 else 0
     recall = total_score / len(gt_files)
-    f1 = (2 * precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
+    f1 = (
+        (2 * precision * recall) / (precision + recall)
+        if (precision + recall) > 0
+        else 0.0
+    )
     return {"P": precision, "R": recall, "F1": f1}
 
 
@@ -318,7 +329,11 @@ def get_cpa_top1(ids_dataset):
         [
             {"$match": {"idDataset": {"$in": ids_dataset}}},
             {
-                "$project": {"idDataset": 1, "tableName": 1, "vectors": {"$objectToArray": "$winningCandidates"}},
+                "$project": {
+                    "idDataset": 1,
+                    "tableName": 1,
+                    "vectors": {"$objectToArray": "$winningCandidates"},
+                },
             },
             {"$unwind": "$vectors"},
             {
@@ -345,7 +360,11 @@ def get_cta_top1(ids_dataset):
         [
             {"$match": {"idDataset": {"$in": ids_dataset}}},
             {
-                "$project": {"idDataset": 1, "tableName": 1, "vectors": {"$objectToArray": "$winningCandidates"}},
+                "$project": {
+                    "idDataset": 1,
+                    "tableName": 1,
+                    "vectors": {"$objectToArray": "$winningCandidates"},
+                },
             },
             {"$unwind": "$vectors"},
             {
@@ -371,7 +390,11 @@ def get_cta_types_table_to_column(id_dataset, top_k_type=20):
         [
             {"$match": {"datasetName": id_dataset}},
             {
-                "$project": {"datasetName": 1, "tableName": 1, "vectors": {"$objectToArray": "$winningCandidates"}},
+                "$project": {
+                    "datasetName": 1,
+                    "tableName": 1,
+                    "vectors": {"$objectToArray": "$winningCandidates"},
+                },
             },
             {"$unwind": "$vectors"},
             {
@@ -394,8 +417,12 @@ def get_cta_types_table_to_column(id_dataset, top_k_type=20):
         if tableName not in cta_weights:
             cta_weights[tableName] = {}
         cta_weights[tableName][id_col] = item["count"]
-        cta_buffer[tableName][id_col] = sorted(item["count"].items(), key=lambda x: x[1], reverse=True)[0:top_k_type]
-        cta_buffer[tableName][id_col] = " ".join([i[0] for i in cta_buffer[tableName][id_col]])
+        cta_buffer[tableName][id_col] = sorted(
+            item["count"].items(), key=lambda x: x[1], reverse=True
+        )[0:top_k_type]
+        cta_buffer[tableName][id_col] = " ".join(
+            [i[0] for i in cta_buffer[tableName][id_col]]
+        )
 
     return cta_weights, cta_buffer
 
@@ -405,7 +432,11 @@ def get_cpa_types_table_to_column(id_dataset, top_k_type=20):
         [
             {"$match": {"datasetName": id_dataset}},
             {
-                "$project": {"datasetName": 1, "tableName": 1, "vectors": {"$objectToArray": "$winningCandidates"}},
+                "$project": {
+                    "datasetName": 1,
+                    "tableName": 1,
+                    "vectors": {"$objectToArray": "$winningCandidates"},
+                },
             },
             {"$unwind": "$vectors"},
             {
@@ -428,8 +459,12 @@ def get_cpa_types_table_to_column(id_dataset, top_k_type=20):
         if tableName not in cpa_weights:
             cpa_weights[tableName] = {}
         cpa_weights[tableName][id_col] = item["count"]
-        cpa_buffer[tableName][id_col] = sorted(item["count"].items(), key=lambda x: x[1], reverse=True)[0:top_k_type]
-        cpa_buffer[tableName][id_col] = " ".join([i[0] for i in cpa_buffer[tableName][id_col]])
+        cpa_buffer[tableName][id_col] = sorted(
+            item["count"].items(), key=lambda x: x[1], reverse=True
+        )[0:top_k_type]
+        cpa_buffer[tableName][id_col] = " ".join(
+            [i[0] for i in cpa_buffer[tableName][id_col]]
+        )
 
     return cpa_weights, cpa_buffer
 
@@ -451,7 +486,9 @@ def get_tables_stats(tables_path):
     return out
 
 
-def get_tables_target(tables_path, targets_path_cea, targets_path_cpa, targets_path_cta):
+def get_tables_target(
+    tables_path, targets_path_cea, targets_path_cpa, targets_path_cta
+):
     cea_gt = pd.read_csv(targets_path_cea, sep=",", header=None)
     if targets_path_cpa is not None:
         cpa_gt = pd.read_csv(targets_path_cpa, sep=",", header=None)
@@ -467,13 +504,23 @@ def get_tables_target(tables_path, targets_path_cea, targets_path_cpa, targets_p
         if table.startswith("."):
             continue
         id_table = table[:-4]
-        targets_datatype[id_table] = {"SUBJ": 0, "NE": [], "LIT": [], "LIT_DATATYPE": {}}
+        targets_datatype[id_table] = {
+            "SUBJ": 0,
+            "NE": [],
+            "LIT": [],
+            "LIT_DATATYPE": {},
+        }
 
     for row in tqdm(cea_gt.itertuples(), total=len(cea_gt)):
         id_table, _, id_col = (row[i] for i in range(1, 4))
         id_col = int(id_col)
         if id_table not in targets_datatype:
-            targets_datatype[id_table] = {"SUBJ": 0, "NE": [], "LIT": [], "LIT_DATATYPE": {}}
+            targets_datatype[id_table] = {
+                "SUBJ": 0,
+                "NE": [],
+                "LIT": [],
+                "LIT_DATATYPE": {},
+            }
         if id_col not in targets_datatype[id_table]["NE"]:
             targets_datatype[id_table]["NE"].append(id_col)
 
@@ -481,7 +528,12 @@ def get_tables_target(tables_path, targets_path_cea, targets_path_cpa, targets_p
         id_table, id_col = (row[i] for i in range(1, 3))
         id_col = int(id_col)
         if id_table not in targets_datatype:
-            targets_datatype[id_table] = {"SUBJ": id_col, "NE": [], "LIT": [], "LIT_DATATYPE": {}}
+            targets_datatype[id_table] = {
+                "SUBJ": id_col,
+                "NE": [],
+                "LIT": [],
+                "LIT_DATATYPE": {},
+            }
         if id_col not in targets_datatype[id_table]["NE"]:
             targets_datatype[id_table]["NE"].append(id_col)
 
@@ -489,7 +541,12 @@ def get_tables_target(tables_path, targets_path_cea, targets_path_cpa, targets_p
         for row in cpa_gt.itertuples():
             id_table, id_subj_col, _ = (row[i] for i in range(1, 4))
             if id_table not in targets_datatype:
-                targets_datatype[id_table] = {"SUBJ": id_subj_col, "NE": [id_subj_col], "LIT": [], "LIT_DATATYPE": {}}
+                targets_datatype[id_table] = {
+                    "SUBJ": id_subj_col,
+                    "NE": [id_subj_col],
+                    "LIT": [],
+                    "LIT_DATATYPE": {},
+                }
             targets_datatype[id_table]["SUBJ"] = id_subj_col
 
     for id_table in tqdm(targets_datatype):
@@ -567,7 +624,9 @@ def compute_datatype(id_table, rows_df, targets_datatype):
             cols_to_datatype[i][cell_datatype] += 1
 
     for id_col in cols_to_datatype:
-        datatype = max(cols_to_datatype[id_col].items(), key=lambda x: x[1], default=(None, 0))
+        datatype = max(
+            cols_to_datatype[id_col].items(), key=lambda x: x[1], default=(None, 0)
+        )
         max_datatype, _ = datatype
         i = int(id_col)
         if i in targets_datatype[id_table]["NE"] and max_datatype != "STRING":
@@ -645,7 +704,9 @@ def make_buffer(
     kg_reference="wikidata",
     candidate_size=100,
 ):
-    targets_datatype = get_tables_target(tables_path, cea_target_path, cpa_target_path, cta_target_path)
+    targets_datatype = get_tables_target(
+        tables_path, cea_target_path, cpa_target_path, cta_target_path
+    )
     tables = os.listdir(tables_path)
     tables_buffer = []
 
@@ -672,9 +733,20 @@ def make_buffer(
         datatype = targets_datatype[table["tableName"]]
         for id_col, _ in enumerate(json_data["data"][0]):
             if id_col in datatype["NE"]:
-                column.append({"idColumn": id_col, "tag": "NE" if id_col != datatype["SUBJ"] else "SUBJ"})
+                column.append(
+                    {
+                        "idColumn": id_col,
+                        "tag": "NE" if id_col != datatype["SUBJ"] else "SUBJ",
+                    }
+                )
             elif id_col in datatype["LIT"]:
-                column.append({"idColumn": id_col, "tag": "LIT", "datatype": datatype["LIT_DATATYPE"][str(id_col)]})
+                column.append(
+                    {
+                        "idColumn": id_col,
+                        "tag": "LIT",
+                        "datatype": datatype["LIT_DATATYPE"][str(id_col)],
+                    }
+                )
         table["metadata"]["column"] = column
         rows = json_data["data"]
         for row in rows:
@@ -685,7 +757,9 @@ def make_buffer(
     return tables_buffer
 
 
-def make_buffer_base(id_dataset, tables_path, kg_reference="wikidata", candidate_size=100):
+def make_buffer_base(
+    id_dataset, tables_path, kg_reference="wikidata", candidate_size=100
+):
     tables = os.listdir(tables_path)
     tables_buffer = []
 
@@ -727,10 +801,14 @@ def make_buffer_with_cta(
     kg_reference="wikidata",
     candidate_size=100,
 ):
-    targets_datatype = get_tables_target(tables_path, cea_target_path, cpa_target_path, cta_target_path)
+    targets_datatype = get_tables_target(
+        tables_path, cea_target_path, cpa_target_path, cta_target_path
+    )
     tables = os.listdir(tables_path)
     tables_buffer = []
-    cta_weights, cta_buffer = get_cta_types_table_to_column(id_dataset_old, top_k_type=5)
+    cta_weights, cta_buffer = get_cta_types_table_to_column(
+        id_dataset_old, top_k_type=5
+    )
     for table in tqdm(tables):
         name = table[:-4]
         if table.startswith("."):
@@ -754,17 +832,31 @@ def make_buffer_with_cta(
         datatype = targets_datatype[table["tableName"]]
         for id_col, _ in enumerate(json_data["data"][0]):
             if id_col in datatype["NE"]:
-                column.append({"idColumn": id_col, "tag": "NE" if id_col != datatype["SUBJ"] else "SUBJ"})
+                column.append(
+                    {
+                        "idColumn": id_col,
+                        "tag": "NE" if id_col != datatype["SUBJ"] else "SUBJ",
+                    }
+                )
                 if (
                     name in cta_buffer
                     and cta_buffer[name].get(str(id_col)) is not None
                     and len(cta_buffer[name].get(str(id_col))) > 0
                 ):
                     table["semanticAnnotations"]["cta"].append(
-                        {"idColumn": id_col, "types": cta_buffer[name][str(id_col)].split(" ")}
+                        {
+                            "idColumn": id_col,
+                            "types": cta_buffer[name][str(id_col)].split(" "),
+                        }
                     )
             elif id_col in datatype["LIT"]:
-                column.append({"idColumn": id_col, "tag": "LIT", "datatype": datatype["LIT_DATATYPE"][str(id_col)]})
+                column.append(
+                    {
+                        "idColumn": id_col,
+                        "tag": "LIT",
+                        "datatype": datatype["LIT_DATATYPE"][str(id_col)],
+                    }
+                )
         table["metadata"]["column"] = column
         rows = json_data["data"]
         for row in rows:
@@ -776,12 +868,22 @@ def make_buffer_with_cta(
 
 
 def make_buffer_for_missing_entities(
-    id_dataset_old, id_dataset, tables_path, cea_target_path, cpa_target_path, cta_target_path, candidate_size=100
+    id_dataset_old,
+    id_dataset,
+    tables_path,
+    cea_target_path,
+    cpa_target_path,
+    cta_target_path,
+    candidate_size=100,
 ):
     if cpa_target_path is not None:
-        targets_datatype = get_tables_target(tables_path, cea_target_path, cpa_target_path, cta_target_path)
+        targets_datatype = get_tables_target(
+            tables_path, cea_target_path, cpa_target_path, cta_target_path
+        )
     else:
-        targets_datatype = get_tables_target2(tables_path, cea_target_path, cta_target_path)
+        targets_datatype = get_tables_target2(
+            tables_path, cea_target_path, cta_target_path
+        )
     cta_weights, cta_buffer = get_cta_types_table_to_column(id_dataset_old)
     cpa_weights, cpa_buffer = get_cpa_types_table_to_column(id_dataset_old)
 
@@ -805,7 +907,12 @@ def make_buffer_for_missing_entities(
             column = []
             for id_col, _ in enumerate(result["winningCandidates"]):
                 if id_col in datatype["NE"]:
-                    column.append({"idColumn": id_col, "tag": "NE" if id_col != datatype["SUBJ"] else "SUBJ"})
+                    column.append(
+                        {
+                            "idColumn": id_col,
+                            "tag": "NE" if id_col != datatype["SUBJ"] else "SUBJ",
+                        }
+                    )
                     if (
                         name in cta_buffer
                         and cta_buffer[name].get(str(id_col)) is not None
@@ -819,7 +926,13 @@ def make_buffer_for_missing_entities(
                             }
                         )
                 else:
-                    column.append({"idColumn": id_col, "tag": "LIT", "datatype": datatype["LIT_DATATYPE"][str(id_col)]})
+                    column.append(
+                        {
+                            "idColumn": id_col,
+                            "tag": "LIT",
+                            "datatype": datatype["LIT_DATATYPE"][str(id_col)],
+                        }
+                    )
                 if (
                     name in cpa_buffer
                     and cpa_buffer[name].get(str(id_col)) is not None
@@ -840,7 +953,9 @@ def make_buffer_for_missing_entities(
                 match = False
                 break
         if not match:
-            tables_buffer[id_table]["rows"].append({"idRow": id_row, "data": result["data"]})
+            tables_buffer[id_table]["rows"].append(
+                {"idRow": id_row, "data": result["data"]}
+            )
     buffer = []
     for id_table in tables_buffer:
         if len(tables_buffer[id_table]["rows"]) > 0:
@@ -887,7 +1002,9 @@ def make_buffer_for_missing_entities(
     return new_buffer
 
 
-def get_stats_on_dataset(cea_target_path, cpa_target_path, cta_target_path, tables_path):
+def get_stats_on_dataset(
+    cea_target_path, cpa_target_path, cta_target_path, tables_path
+):
     n_tables, total_rows, total_columns = (0, 0, 0)
     for table in tqdm(os.listdir(tables_path)):
         if table.startswith("."):

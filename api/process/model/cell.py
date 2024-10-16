@@ -31,8 +31,16 @@ class Cell:
             name_norm = utils.clean_str(candidate["name"])
             desc_norm = utils.clean_str(candidate["description"])
             row_content_norm = utils.clean_str(row_content)
-            desc_score = round(metrics.compute_similarity_between_string(desc_norm, row_content_norm), 3)
-            desc_score_ngram = round(metrics.compute_similarity_between_string(desc_norm, row_content_norm, 3), 3)
+            desc_score = round(
+                metrics.compute_similarity_between_string(desc_norm, row_content_norm),
+                3,
+            )
+            desc_score_ngram = round(
+                metrics.compute_similarity_between_string(
+                    desc_norm, row_content_norm, 3
+                ),
+                3,
+            )
 
             features = {
                 "ambiguity_mention": candidate["ambiguity_mention"],

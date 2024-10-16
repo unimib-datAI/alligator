@@ -32,4 +32,6 @@ class DatasetModel:
                 )
             else:
                 TODO = result["status"]["TODO"] + n_tables
-                dataset_c.update_one({"_id": result["_id"]}, {"$set": {"status.TODO": TODO}})
+                dataset_c.update_one(
+                    {"_id": result["_id"]}, {"$set": {"status.TODO": TODO}}
+                )

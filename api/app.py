@@ -107,7 +107,9 @@ all_features = {
 
 
 # Define data models for the API to serialize and deserialize data
-rows_fields = api.model("Rows", {"idRow": fields.Integer, "data": fields.List(fields.String)})
+rows_fields = api.model(
+    "Rows", {"idRow": fields.Integer, "data": fields.List(fields.String)}
+)
 
 cta_fields = api.model(
     "Cta",
@@ -118,11 +120,21 @@ cta_fields = api.model(
 )
 
 cpa_fields = api.model(
-    "Cpa", {"idSourceColumn": fields.Integer, "idTargetColumn": fields.Integer, "predicate": fields.List(fields.String)}
+    "Cpa",
+    {
+        "idSourceColumn": fields.Integer,
+        "idTargetColumn": fields.Integer,
+        "predicate": fields.List(fields.String),
+    },
 )
 
 cea_fields = api.model(
-    "Cea", {"idColumn": fields.Integer, "idRow": fields.Integer, "entity": fields.List(fields.String)}
+    "Cea",
+    {
+        "idColumn": fields.Integer,
+        "idRow": fields.Integer,
+        "entity": fields.List(fields.String),
+    },
 )
 
 semantic_annotation_fields = api.model(
@@ -136,7 +148,9 @@ semantic_annotation_fields = api.model(
 
 column_fields = api.model("Column", {"idColumn": fields.Integer, "tag": fields.String})
 
-metadata = api.model("Metadata", {"columnMetadata": fields.List(fields.Nested(column_fields))})
+metadata = api.model(
+    "Metadata", {"columnMetadata": fields.List(fields.Nested(column_fields))}
+)
 
 table_fields = api.model(
     "Table",
@@ -156,34 +170,190 @@ table_list_field = api.model(
     {
         "datasetName": fields.String(required=True, example="Dataset1"),
         "tableName": fields.String(required=True, example="Test1"),
-        "header": fields.List(fields.String(), required=True, example=["col1", "col2", "col3", "Date of Birth"]),
+        "header": fields.List(
+            fields.String(),
+            required=True,
+            example=["col1", "col2", "col3", "Date of Birth"],
+        ),
         "rows": fields.List(
             fields.String(),
             required=True,
             example=[
-                {"idRow": 1, "data": ["Zooey Deschanel", "Los Angeles", "United States", "January 17, 1980"]},
-                {"idRow": 2, "data": ["Sarah Mclachlan", "Halifax", "Canada", "January 28, 1968"]},
-                {"idRow": 3, "data": ["Macaulay Carson Culkin", "New York", "United States", "August 26, 1980"]},
-                {"idRow": 4, "data": ["Leonardo DiCaprio", "Los Angeles", "United States", "November 11, 1974"]},
-                {"idRow": 5, "data": ["Tom Hanks", "Concord", "United States", "July 9, 1956"]},
-                {"idRow": 6, "data": ["Meryl Streep", "Summit", "United States", "June 22, 1949"]},
-                {"idRow": 7, "data": ["Brad Pitt", "Shawnee", "United States", "December 18, 1963"]},
-                {"idRow": 8, "data": ["Natalie Portman", "Jerusalem", "Israel", "June 9, 1981"]},
-                {"idRow": 9, "data": ["Robert De Niro", "New York", "United States", "August 17, 1943"]},
-                {"idRow": 10, "data": ["Angelina Jolie", "Los Angeles", "United States", "June 4, 1975"]},
-                {"idRow": 11, "data": ["Steven Spielberg", "Los Angeles", "United States", "December 18, 1946"]},
-                {"idRow": 12, "data": ["Martin Scorsese", "New York", "United States", "November 17, 1942"]},
-                {"idRow": 13, "data": ["Quentin Tarantino", "Knoxville", "United States", "March 27, 1963"]},
-                {"idRow": 14, "data": ["Alfred Hitchcock", "London", "United Kingdom", "August 13, 1899"]},
-                {"idRow": 15, "data": ["Stanley Kubrick", "New York", "United States", "July 26, 1928"]},
-                {"idRow": 16, "data": ["Christopher Nolan", "London", "United Kingdom", "July 30, 1970"]},
-                {"idRow": 17, "data": ["Francis Ford Coppola", "Detroit", "United States", "April 7, 1939"]},
-                {"idRow": 18, "data": ["James Cameron", "Kapuskasing", "Canada", "August 16, 1954"]},
-                {"idRow": 19, "data": ["Ridley Scott", "South Shields", "United Kingdom", "November 30, 1937"]},
-                {"idRow": 20, "data": ["Woody Allen", "New York", "United States", "December 1, 1935"]},
+                {
+                    "idRow": 1,
+                    "data": [
+                        "Zooey Deschanel",
+                        "Los Angeles",
+                        "United States",
+                        "January 17, 1980",
+                    ],
+                },
+                {
+                    "idRow": 2,
+                    "data": [
+                        "Sarah Mclachlan",
+                        "Halifax",
+                        "Canada",
+                        "January 28, 1968",
+                    ],
+                },
+                {
+                    "idRow": 3,
+                    "data": [
+                        "Macaulay Carson Culkin",
+                        "New York",
+                        "United States",
+                        "August 26, 1980",
+                    ],
+                },
+                {
+                    "idRow": 4,
+                    "data": [
+                        "Leonardo DiCaprio",
+                        "Los Angeles",
+                        "United States",
+                        "November 11, 1974",
+                    ],
+                },
+                {
+                    "idRow": 5,
+                    "data": ["Tom Hanks", "Concord", "United States", "July 9, 1956"],
+                },
+                {
+                    "idRow": 6,
+                    "data": [
+                        "Meryl Streep",
+                        "Summit",
+                        "United States",
+                        "June 22, 1949",
+                    ],
+                },
+                {
+                    "idRow": 7,
+                    "data": [
+                        "Brad Pitt",
+                        "Shawnee",
+                        "United States",
+                        "December 18, 1963",
+                    ],
+                },
+                {
+                    "idRow": 8,
+                    "data": ["Natalie Portman", "Jerusalem", "Israel", "June 9, 1981"],
+                },
+                {
+                    "idRow": 9,
+                    "data": [
+                        "Robert De Niro",
+                        "New York",
+                        "United States",
+                        "August 17, 1943",
+                    ],
+                },
+                {
+                    "idRow": 10,
+                    "data": [
+                        "Angelina Jolie",
+                        "Los Angeles",
+                        "United States",
+                        "June 4, 1975",
+                    ],
+                },
+                {
+                    "idRow": 11,
+                    "data": [
+                        "Steven Spielberg",
+                        "Los Angeles",
+                        "United States",
+                        "December 18, 1946",
+                    ],
+                },
+                {
+                    "idRow": 12,
+                    "data": [
+                        "Martin Scorsese",
+                        "New York",
+                        "United States",
+                        "November 17, 1942",
+                    ],
+                },
+                {
+                    "idRow": 13,
+                    "data": [
+                        "Quentin Tarantino",
+                        "Knoxville",
+                        "United States",
+                        "March 27, 1963",
+                    ],
+                },
+                {
+                    "idRow": 14,
+                    "data": [
+                        "Alfred Hitchcock",
+                        "London",
+                        "United Kingdom",
+                        "August 13, 1899",
+                    ],
+                },
+                {
+                    "idRow": 15,
+                    "data": [
+                        "Stanley Kubrick",
+                        "New York",
+                        "United States",
+                        "July 26, 1928",
+                    ],
+                },
+                {
+                    "idRow": 16,
+                    "data": [
+                        "Christopher Nolan",
+                        "London",
+                        "United Kingdom",
+                        "July 30, 1970",
+                    ],
+                },
+                {
+                    "idRow": 17,
+                    "data": [
+                        "Francis Ford Coppola",
+                        "Detroit",
+                        "United States",
+                        "April 7, 1939",
+                    ],
+                },
+                {
+                    "idRow": 18,
+                    "data": [
+                        "James Cameron",
+                        "Kapuskasing",
+                        "Canada",
+                        "August 16, 1954",
+                    ],
+                },
+                {
+                    "idRow": 19,
+                    "data": [
+                        "Ridley Scott",
+                        "South Shields",
+                        "United Kingdom",
+                        "November 30, 1937",
+                    ],
+                },
+                {
+                    "idRow": 20,
+                    "data": [
+                        "Woody Allen",
+                        "New York",
+                        "United States",
+                        "December 1, 1935",
+                    ],
+                },
             ],
         ),
-        "semanticAnnotations": fields.Nested(semantic_annotation_fields, example={"cea": [], "cta": [], "cpa": []}),
+        "semanticAnnotations": fields.Nested(
+            semantic_annotation_fields, example={"cea": [], "cta": [], "cpa": []}
+        ),
         "metadata": fields.Nested(
             metadata,
             example={
@@ -233,7 +403,10 @@ class CreateWithArray(Resource):
 
         try:
             tables = request.get_json()
-            out = [{"datasetName": table["datasetName"], "tableName": table["tableName"]} for table in tables]
+            out = [
+                {"datasetName": table["datasetName"], "tableName": table["tableName"]}
+                for table in tables
+            ]
         except:
             print({"traceback": traceback.format_exc()}, flush=True)
             return {"Error": "Invalid Json"}, 400
@@ -248,7 +421,11 @@ class CreateWithArray(Resource):
             mongoDBWrapper.get_collection("row").insert_many(tables)
             job_active.delete("STOP")
             out = [
-                {"id": str(table["_id"]), "datasetName": table["datasetName"], "tableName": table["tableName"]}
+                {
+                    "id": str(table["_id"]),
+                    "datasetName": table["datasetName"],
+                    "tableName": table["tableName"],
+                }
                 for table in tables
             ]
         except Exception as e:
@@ -332,7 +509,11 @@ class Dataset(Resource):
 
     @ds.doc(
         params={
-            "datasetName": {"description": "The name of the dataset to be created.", "type": "string", "required": True}
+            "datasetName": {
+                "description": "The name of the dataset to be created.",
+                "type": "string",
+                "required": True,
+            }
         },
         description="Create a new dataset with the specified name.",
     )
@@ -357,7 +538,13 @@ class Dataset(Resource):
         if not validate_token(token):
             return {"Error": "Invalid Token"}, 403
 
-        data = {"datasetName": dataset_name, "Ntables": 0, "blocks": 0, "%": 0, "process": None}
+        data = {
+            "datasetName": dataset_name,
+            "Ntables": 0,
+            "blocks": 0,
+            "%": 0,
+            "process": None,
+        }
         try:
             result = {"message": f"Created dataset {dataset_name}"}, 200
             dataset_c.insert_one(data)
@@ -377,7 +564,10 @@ class Dataset(Resource):
         403: "Forbidden - Access denied due to invalid token.",
     },
     params={
-        "datasetName": {"description": "The name of the dataset to retrieve.", "type": "string"},
+        "datasetName": {
+            "description": "The name of the dataset to retrieve.",
+            "type": "string",
+        },
         "token": {"description": "API key token for authentication.", "type": "string"},
     },
 )
@@ -463,7 +653,9 @@ class DatasetID(Resource):
         400: "Bad Request - There was an error in the request. This might be due to invalid parameters or file format.",
         403: "Forbidden - Access denied due to invalid token.",
     },
-    params={"token": {"description": "API key token for authentication.", "type": "string"}},
+    params={
+        "token": {"description": "API key token for authentication.", "type": "string"}
+    },
 )
 class DatasetTable(Resource):
     @ds.expect(upload_parser)
@@ -503,7 +695,9 @@ class DatasetTable(Resource):
             table_name = uploaded_file.filename.split(".")[0]
             out = [{"datasetName": datasetName, "tableName": table_name}]
             table = TableModel(mongoDBWrapper)
-            num_rows = table.parse_csv(uploaded_file, dataset_name, table_name, kg_reference)
+            num_rows = table.parse_csv(
+                uploaded_file, dataset_name, table_name, kg_reference
+            )
             table.store_tables(num_rows)
             dataset = DatasetModel(mongoDBWrapper, table.table_metadata)
             dataset.store_datasets()
@@ -511,20 +705,32 @@ class DatasetTable(Resource):
             row_c.insert_many(tables)
             job_active.delete("STOP")
             out = [
-                {"id": str(table["_id"]), "datasetName": table["datasetName"], "tableName": table["tableName"]}
+                {
+                    "id": str(table["_id"]),
+                    "datasetName": table["datasetName"],
+                    "tableName": table["tableName"],
+                }
                 for table in tables
             ]
         except pymongo.errors.DuplicateKeyError as e:
             pass
             # print({"traceback": traceback.format_exc()}, flush=True)
         except Exception as e:
-            return {"status": "Error", "message": str(e), "traceback": traceback.format_exc()}, 400
+            return {
+                "status": "Error",
+                "message": str(e),
+                "traceback": traceback.format_exc(),
+            }, 400
 
         return {"status": "Ok", "tables": out}, 202
 
     @ds.doc(
         params={
-            "page": {"description": "The page number for paginated results, default is 1.", "type": "int", "default": 1}
+            "page": {
+                "description": "The page number for paginated results, default is 1.",
+                "type": "int",
+                "default": 1,
+            }
         },
         description="Retrieve tables within dataset with pagination. Each page contains a subset of tables.",
     )
@@ -711,7 +917,9 @@ class TableID(Resource):
                             {
                                 "idSourceColumn": id_source_column,
                                 "idTargetColumn": id_target_column,
-                                "predicate": winning_predicates[id_source_column][id_target_column],
+                                "predicate": winning_predicates[id_source_column][
+                                    id_target_column
+                                ],
                             }
                         )
 
@@ -748,7 +956,11 @@ class TableID(Resource):
             print({"traceback": traceback.format_exc()}, flush=True)
             return {"status": "Error", "message": str(e)}, 400
 
-        return {"datasetName": datasetName, "tableName": tableName, "deleted": True}, 200
+        return {
+            "datasetName": datasetName,
+            "tableName": tableName,
+            "deleted": True,
+        }, 200
 
     def _delete_table(self, dataset_name, table_name):
         query = {"datasetName": dataset_name, "tableName": table_name}
