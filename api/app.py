@@ -462,8 +462,9 @@ class DatasetTable(Resource):
             "kgReference": {"description": "Source Knowledge Graph (KG) of reference for the annotation process. Default is 'wikidata'.", "type": "string"},
             "columnTypes": {"description": "Types to be assigned to each column", "type":"string"},
             "columnNERTypes" : {"description" : "NERTypes to be assigned to each column. Available values: 'ORG', 'PERS', 'LOC' and 'OTHERS'.", "type":"string" },
-            "columnDataTypes" : {"description": "Datatypes to be assigned at each column. Available values: 'LIT' or 'NE'.", "type":"string"},
-            "litTypes": {"description": "Datatypes for each literal column of the table"}
+            "columnNorL" : {"description": "Datatypes to be assigned at each column. Available values: 'LIT' or 'NE'.", "type":"string"},
+            "litTypes": {"description": "Datatypes for each literal column of the table", "type":"string"},
+            "t_closure": {"description": "If types are inserted, insert True if you want to use the transitive closure of the type, rather than the type. If you want to use this insert one type per column. Available values:'True' or 'False'", "type":"string"}
         }
     )
     def post(self, datasetName):
@@ -475,8 +476,9 @@ class DatasetTable(Resource):
                 token (str): API token for authentication.
                 columnTypes (str): Types for each column of the table.
                 columnNERTypes (str) : NERTypes for each column of the table.
-                columnDataTypes (str): Datatypes for each column of the table.
+                columnNorL (str): Datatypes for each column of the table.
                 litTypes (str): Datatypes for each literal column of the table.
+                t_closure (str): If types are inserted, insert True if you want to use the transitive closure of the type, rather than the type. Insert one type per column.
             Returns:
                 Dict: A status message and a list of processed tables, or an error message in case of failure.
         """
@@ -484,9 +486,10 @@ class DatasetTable(Resource):
         parser.add_argument("kgReference", type=str, help="variable 1", location="args")
         parser.add_argument("token", type=str, help="variable 2", location="args")
         parser.add_argument("columnTypes", type=str, help="variable 3", location="args")
-        parser.add_argument("columnDataTypes", type=str, help="variable 4", location="args")
+        parser.add_argument("columnNorL", type=str, help="variable 4", location="args")
         parser.add_argument("litTypes", type=str, help="variable 5", location="args")
         parser.add_argument("columnNERTypes", type=str, help="variable 6", location="args")
+        parser.add_argument("t_closure", type=str, help="variable 7", location="args")
         args = parser.parse_args()
         kg_reference = "wikidata"
         if args["kgReference"] is not None:
@@ -497,15 +500,19 @@ class DatasetTable(Resource):
         types = None
         if args["columnTypes"] is not None:
             types = list(args["columnTypes"].split(","))
-        D_Types = None
-        if args["columnDataTypes"] is not None:
-            D_Types = list(args["columnDataTypes"].split(","))
+        NorL_Types = None
+        if args["columnNorL"] is not None:
+            NorL_Types = list(args["columnNorL"].split(","))
         l_types = None
         if args["litTypes"] is not None:
             l_types = list(args["litTypes"].split(","))
         NERTypes = None
         if args["columnNERTypes"] is not None:
             NERTypes = list(args["columnNERTypes"].split(","))
+        t_closure = None
+        if args["t_closure"] is not None:
+            t_closure = list(args["t_closure"].split(","))
+        
         try:
             args = upload_parser.parse_args()
             uploaded_file = args["file"]  # This is FileStorage instance
@@ -513,7 +520,7 @@ class DatasetTable(Resource):
             table_name = uploaded_file.filename.split(".")[0]
             out = [{"datasetName": datasetName, "tableName": table_name}]
             table = TableModel(mongoDBWrapper)
-            num_rows = table.parse_csv(uploaded_file, dataset_name, table_name, kg_reference, types, NERTypes, D_Types,l_types)
+            num_rows = table.parse_csv(uploaded_file, dataset_name, table_name, kg_reference, types, NERTypes, NorL_Types,l_types,t_closure)
             table.store_tables(num_rows)
             dataset = DatasetModel(mongoDBWrapper, table.table_metadata)
             dataset.store_datasets()

@@ -74,7 +74,7 @@ async def main():
     dp = DataPreparation(header, rows_data, lamAPI)
     
     try:
-        column_metadata, target = await dp.compute_datatype(column_metadata, target, data["d_types"], data["l_types"])
+        column_metadata, target = await dp.compute_datatype(column_metadata, target, data["NorL_types"], data["l_types"])
         if target["SUBJ"] is not None:
             column_metadata[str(target["SUBJ"])] = "SUBJ"
         obj_row_update["column"] = column_metadata
